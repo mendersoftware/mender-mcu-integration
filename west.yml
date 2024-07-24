@@ -1,0 +1,21 @@
+manifest:
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+    - name: mender
+      # TODO: switch to https:// once the repos are public
+      url-base: git@github.com:mendersoftware
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: main
+      import: true
+    - name: mender-mcu
+      remote: mender
+      revision: main
+      path: modules/mender
+
+  self:
+    path: mender-mcu-integration
