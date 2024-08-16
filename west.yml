@@ -4,8 +4,7 @@ manifest:
     - name: zephyrproject-rtos
       url-base: https://github.com/zephyrproject-rtos
     - name: mender
-      # TODO: switch to https:// once the repos are public
-      url-base: git@github.com:mendersoftware
+      url-base: https://github.com/mendersoftware
 
   projects:
     - name: zephyr

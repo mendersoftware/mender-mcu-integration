@@ -32,22 +32,11 @@ progresses.
 To start using Mender, we recommend that you begin with the Getting started
 section in [the Mender documentation](https://docs.mender.io/).
 
-## Building the Zephyr Project Mender reference app
 
-**TODO**: Rework instructions once `mender-mcu` and `mender-mcu-integration` repo are public.
+## Building the Zephyr Project Mender reference app
 
 To add Mender OTA Zephyr Module on your project, create first a vanilla Zephyr workspace and
 manually set the manifest to point to this repository.
-
-```
-west init workspace
-cd workspace
-git clone git@github.com:mendersoftware/mender-mcu-integration
-sed  -i .west/config -e 's|path = zephyr|path = mender-mcu-integration|'
-west update
-```
-
-*In the future this will look like*
 
 ```
 west init workspace --manifest-url https://github.com/mendersoftware/mender-mcu-integration
