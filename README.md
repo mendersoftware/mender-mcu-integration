@@ -16,7 +16,18 @@ Zephyr Module, using QEMU as the board of choice.
 
 ![Mender logo](https://github.com/mendersoftware/mender/raw/master/mender_logo.png)
 
+
+## Project Status
+
+This repository is a work in progress. As we continue development, features and functionality may
+evolve significantly.
+
+
 ## Getting started
+
+Since the project is under active development, we recommend watching the repository or checking back
+regularly for updates. Detailed documentation and usage instructions will be provide d as the
+project progresses.
 
 To start using Mender, we recommend that you begin with the Getting started
 section in [the Mender documentation](https://docs.mender.io/).
@@ -45,10 +56,13 @@ cd workspace && west update
 
 Now build and run the reference application with:
 
+:warning: Work in progress :warning:
+
 ```
 west build --build-dir build-qemu --board qemu_x86 mender-mcu-integration
 west build --build-dir build-qemu --target run
 ```
+
 
 ## Contributing
 
