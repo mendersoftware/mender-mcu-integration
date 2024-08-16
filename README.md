@@ -74,7 +74,7 @@ Mender, please read our guide on how to best get started
 ## License
 
 Mender is licensed under the Apache License, Version 2.0. See
-[LICENSE](https://github.com/mendersoftware/mender-convert/blob/master/LICENSE)
+[LICENSE](https://github.com/mendersoftware/mender-mcu-integration/blob/master/LICENSE)
 for the full license text.
 
 
