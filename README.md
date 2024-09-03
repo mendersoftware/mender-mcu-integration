@@ -35,21 +35,23 @@ section in [the Mender documentation](https://docs.mender.io/).
 
 ## Building the Zephyr Project Mender reference app
 
-To add Mender OTA Zephyr Module on your project, create first a vanilla Zephyr workspace and
-manually set the manifest to point to this repository.
+Initialize a Zephyr workspace based on this repository's manifest, which will pull Mender MCU code
+and its dependencies:
 
 ```
 west init workspace --manifest-url https://github.com/mendersoftware/mender-mcu-integration
 cd workspace && west update
 ```
 
-Now build and run the reference application with:
+To built the project, you need a board that supports MCU boot. The following link will filter
+the officially supported boards that also support MCU boot:
 
-:warning: Work in progress :warning:
+* [Zephyr Project supported boards with MCU boot](https://docs.zephyrproject.org/latest/gsearch.html?q=MCUboot&check_keywords=yes&area=default#gsc.tab=0&gsc.q=MCUboot&gsc.ref=more%3Aboards&gsc.sort=)
+
+For example to build the reference project for an ESP32S3-DevKitC, execute:
 
 ```
-west build --build-dir build-qemu --board qemu_x86 mender-mcu-integration
-west build --build-dir build-qemu --target run
+west build --board esp32s3_devkitc/esp32s3/procpu mender-mcu-integration
 ```
 
 

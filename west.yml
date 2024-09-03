@@ -9,12 +9,13 @@ manifest:
   projects:
     - name: zephyr
       remote: zephyrproject-rtos
-      revision: main
+      revision: v3.7.0
       import: true
     - name: mender-mcu
       remote: mender
       revision: main
       path: modules/mender-mcu
+      import: true
 
   self:
     path: mender-mcu-integration
