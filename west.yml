@@ -15,6 +15,7 @@ manifest:
       remote: mender
       revision: main
       path: modules/mender-mcu
+      import: true
 
   self:
     path: mender-mcu-integration
