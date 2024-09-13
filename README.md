@@ -79,6 +79,18 @@ Additionally, you might want to erase the whole flash so that the storage partit
 `python -m esptool --chip esp32 erase_flash` for that. Find the vendor documentation
 [here](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/basic-commands.html#erase-flash-erase-flash-erase-region)
 
+## Creating the Mender Artifact
+
+Create an Artifact (remember to disable compression):
+
+```
+./mender-artifact write rootfs-image \
+  --file build/zephyr/zephyr.signed.bin \
+  --compression none \
+  --artifact-name <artifact_name> \
+  --device-type <device_type>
+```
+
 ## Contributing
 
 We welcome and ask for your contribution. If you would like to contribute to
