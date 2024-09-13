@@ -25,9 +25,12 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "mender-inventory.h"
 #include "mender-flash.h"
 
+#ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
+#include "mender-zephyr-image-update-module.h"
+#endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
+
 // TODO: Rework with MEN-7547
 #define DEVICE_TYPE   "espressif-esp32"
-#define ARTIFACT_NAME "zephyr-0.0.1"
 
 static mender_err_t
 network_connect_cb(void) {
@@ -39,24 +42,6 @@ static mender_err_t
 network_release_cb(void) {
     LOG_INF("network_release_cb");
     return MENDER_OK;
-}
-
-static mender_err_t
-authentication_success_cb(void) {
-    LOG_INF("authentication_success_cb");
-
-    mender_err_t ret = MENDER_OK;
-    if (MENDER_OK != (ret = mender_flash_confirm_image())) {
-        LOG_ERR("Unable to validate the image");
-    }
-
-    return ret;
-}
-
-static mender_err_t
-authentication_failure_cb(void) {
-    LOG_INF("authentication_failure_cb");
-    return MENDER_FAIL;
 }
 
 static mender_err_t
@@ -98,18 +83,14 @@ main(void) {
     certs_add_credentials();
 
     LOG_INF("Initializing Mender Client with:");
-    LOG_INF("   Artifact name: '%s'", ARTIFACT_NAME);
     LOG_INF("   Device type:   '%s'", DEVICE_TYPE);
     LOG_INF("   Identity:      '{\"%s\": \"%s\"}'", mender_identity.name, mender_identity.value);
 
     /* Initialize mender-client */
-    mender_client_config_t    mender_client_config    = { .artifact_name                = ARTIFACT_NAME,
-                                                          .device_type                  = DEVICE_TYPE,
+    mender_client_config_t    mender_client_config    = { .device_type                  = DEVICE_TYPE,
                                                           .recommissioning              = false };
     mender_client_callbacks_t mender_client_callbacks = { .network_connect        = network_connect_cb,
                                                           .network_release        = network_release_cb,
-                                                          .authentication_success = authentication_success_cb,
-                                                          .authentication_failure = authentication_failure_cb,
                                                           .deployment_status      = deployment_status_cb,
                                                           .restart                = restart_cb,
                                                           .get_identity           = get_identity_cb,
@@ -117,6 +98,11 @@ main(void) {
 
     assert(MENDER_OK == mender_client_init(&mender_client_config, &mender_client_callbacks));
     LOG_INF("Mender client initialized");
+
+#ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
+    assert(MENDER_OK == mender_zephyr_image_register_update_module());
+    LOG_INF("Update Module 'zephyr-image' initialized");
+#endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_CLIENT_ADD_ON_INVENTORY
     mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "bar" }, { .name = NULL, .value = NULL } };
