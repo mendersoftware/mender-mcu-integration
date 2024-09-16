@@ -25,6 +25,7 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "mender-inventory.h"
 #include "mender-flash.h"
 
+// TODO: Rework with MEN-7547
 #define DEVICE_TYPE   "espressif-esp32"
 #define ARTIFACT_NAME "zephyr-0.0.1"
 
@@ -55,7 +56,7 @@ authentication_success_cb(void) {
 static mender_err_t
 authentication_failure_cb(void) {
     LOG_INF("authentication_failure_cb");
-    return MENDER_OK;
+    return MENDER_FAIL;
 }
 
 static mender_err_t
