@@ -23,7 +23,7 @@ generate_inc_file_for_target(app
 
 # CloudFlare CA certificate
 # Used as secondary CA certificate for Artifacts
-# TODO: Use Google Trust Services' root CAs instead
+# TODO: Use Google Trust Services' root CAs instead. Rework with MEN-7550
 generate_inc_file_for_target(app
     "certs/r2.cloudflarestorage.com1.crt"
     "${ZEPHYR_BINARY_DIR}/include/generated/r2.cloudflarestorage.com1.crt.inc"
