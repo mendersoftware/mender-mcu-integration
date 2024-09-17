@@ -84,7 +84,8 @@ Additionally, you might want to erase the whole flash so that the storage partit
 Create an Artifact (remember to disable compression):
 
 ```
-./mender-artifact write rootfs-image \
+mender-artifact write module-image \
+  --type zephyr-image \
   --file build/zephyr/zephyr.signed.bin \
   --compression none \
   --artifact-name <artifact_name> \
