@@ -30,13 +30,7 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
 
 K_SEM_DEFINE(network_ready_sem, 0, 1);
 
-#define DHCP_OPTION_NTP (42)
-
-static uint8_t ntp_server[4];
-
 static struct net_mgmt_event_callback mgmt_cb;
-
-static struct net_dhcpv4_option_callback dhcp_cb;
 
 static void
 start_dhcpv4_client(struct net_if *iface, void *user_data) {
@@ -73,25 +67,12 @@ event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct ne
     k_sem_give(&network_ready_sem);
 }
 
-static void
-option_handler(struct net_dhcpv4_option_callback *cb, size_t length, enum net_dhcpv4_msg_type msg_type, struct net_if *iface) {
-    char buf[NET_IPV4_ADDR_LEN];
-
-    LOG_INF("DHCP Option %d: %s", cb->option, net_addr_ntop(AF_INET, cb->data, buf, sizeof(buf)));
-}
-
 int
 netup_wait_for_network() {
     int ret = 0;
 
     net_mgmt_init_event_callback(&mgmt_cb, event_handler, NET_EVENT_IPV4_ADDR_ADD);
     net_mgmt_add_event_callback(&mgmt_cb);
-
-    net_dhcpv4_init_option_callback(&dhcp_cb, option_handler, DHCP_OPTION_NTP, ntp_server, sizeof(ntp_server));
-    ret = net_dhcpv4_add_option_callback(&dhcp_cb);
-    if (ret != 0) {
-        return ret;
-    }
 
     net_if_foreach(start_dhcpv4_client, NULL);
 
