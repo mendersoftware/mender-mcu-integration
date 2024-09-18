@@ -33,14 +33,6 @@ K_SEM_DEFINE(network_ready_sem, 0, 1);
 static struct net_mgmt_event_callback mgmt_cb;
 
 static void
-start_dhcpv4_client(struct net_if *iface, void *user_data) {
-    ARG_UNUSED(user_data);
-
-    LOG_INF("Start on %s: index=%d", net_if_get_device(iface)->name, net_if_get_by_iface(iface));
-    net_dhcpv4_start(iface);
-}
-
-static void
 event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct net_if *iface) {
     int i = 0;
 
@@ -74,7 +66,12 @@ netup_wait_for_network() {
     net_mgmt_init_event_callback(&mgmt_cb, event_handler, NET_EVENT_IPV4_ADDR_ADD);
     net_mgmt_add_event_callback(&mgmt_cb);
 
-    net_if_foreach(start_dhcpv4_client, NULL);
+    /* Assume that there is only one network interface, having two or more will just pick up
+    the default and and continue blindly */
+    struct net_if *iface = net_if_get_default();
+    LOG_INF("Using net interface %s, index=%d", net_if_get_device(iface)->name, net_if_get_by_iface(iface));
+
+    net_dhcpv4_start(iface);
 
     // Wait for network
     LOG_INF("Waiting for network up...");
