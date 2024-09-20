@@ -1,0 +1,19 @@
+mainmenu "Mender App"
+
+menu "Mender App WIFI Configuration"
+
+if WIFI
+
+config MENDER_APP_WIFI_SSID
+	string "WIFI SSID - Network name"
+	default "my_network"
+
+config MENDER_APP_WIFI_PSK
+	string "WIFI PSK - Network password key"
+	default "secret_passwd"
+
+endif # WIFI
+
+endmenu
+
+source "Kconfig.zephyr"
