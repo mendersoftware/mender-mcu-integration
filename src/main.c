@@ -15,8 +15,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
-#include "netup.h"
-#include "certs.h"
+#include "utils/netup.h"
+#include "utils/certs.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
@@ -28,6 +28,10 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
 #include "mender-zephyr-image-update-module.h"
 #endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
+
+#ifdef CONFIG_MENDER_APP_NOOP_UPDATE_MODULE
+#include "modules/noop-update-module.h"
+#endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
 // TODO: Rework with MEN-7547
 #define DEVICE_TYPE   "espressif-esp32"
@@ -103,6 +107,11 @@ main(void) {
     assert(MENDER_OK == mender_zephyr_image_register_update_module());
     LOG_INF("Update Module 'zephyr-image' initialized");
 #endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
+
+#ifdef CONFIG_MENDER_APP_NOOP_UPDATE_MODULE
+    assert(MENDER_OK == noop_update_module_register());
+    LOG_INF("Update Module 'noop-update' initialized");
+#endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_CLIENT_ADD_ON_INVENTORY
     mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "bar" }, { .name = NULL, .value = NULL } };

@@ -97,6 +97,18 @@ Flash it now to the board and read the serial line with something like:
 west flash && west espressif monitor
 ```
 
+### NXP MR-CANHUBK3
+
+*WARNING*: this board does not support MCUBoot, so the default "zephyr-image" Update Module is not
+compiled in. To make it actually perform an update an Update Module needs to be written. The
+"noop-update" from this repository is compiled in as a way to get started but, as the name shows,
+this update module does nothing.
+
+To build the reference project for NXP MR-CANHUBK3, execute:
+```
+west build --board mr_canhubk3 mender-mcu-integration
+```
+
 ## First time board setup
 
 For the first time of using the board, you need to build and flash the bootloader. It can either be
