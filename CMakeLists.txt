@@ -14,6 +14,10 @@ target_include_directories(app PUBLIC
     src
 )
 
+if(CONFIG_MENDER_APP_NOOP_UPDATE_MODULE MATCHES "y")
+    target_sources(app PRIVATE src/modules/noop-update-module.c)
+endif()
+
 # Amazon Root CA 1 certificate from https://www.amazontrust.com/repository
 # Used as primary CA certificate for Hosted Mender
 generate_inc_file_for_target(app
