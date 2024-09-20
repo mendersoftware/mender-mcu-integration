@@ -79,6 +79,24 @@ Flash it now to the board and read the serial line with something like:
 west flash && west espressif monitor
 ```
 
+### Olimex ESP32-EVB
+
+See board support information an [Zephyr Project
+docs](https://docs.zephyrproject.org/latest/boards/olimex/olimex_esp32_evb/doc/index.html).
+The board doesn't come with Ethernet support in the upstream
+[Zephyr 3.7 board integrations](https://github.com/zephyrproject-rtos/zephyr/tree/v3.7.0/boards/olimex/olimex_esp32_evb),
+but this repository ships a device tree overlay adding the necessary bits.
+
+To build the reference project for Olimex ESP32-EVB, execute:
+```
+west build --board olimex_esp32_evb/esp32/procpu mender-mcu-integration
+```
+
+Flash it now to the board and read the serial line with something like:
+```
+west flash && west espressif monitor
+```
+
 ## First time board setup
 
 For the first time of using the board, you need to build and flash the bootloader. It can either be
