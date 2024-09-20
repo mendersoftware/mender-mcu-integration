@@ -6,8 +6,8 @@ project(mender-mcu-integration)
 
 target_sources(app PRIVATE
     src/main.c
-    src/netup.c
-    src/certs.c
+    src/utils/netup.c
+    src/utils/certs.c
 )
 
 target_include_directories(app PUBLIC

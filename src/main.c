@@ -15,8 +15,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
-#include "netup.h"
-#include "certs.h"
+#include "utils/netup.h"
+#include "utils/certs.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
