@@ -1,0 +1,29 @@
+&mdio {
+    pinctrl-0 = <&mdio_default>;
+    pinctrl-names = "default";
+
+    phy: ethernet-phy@0 {
+        compatible = "ethernet-phy";
+        status = "okay";
+        reg = <0>;
+    };
+    status = "okay";
+};
+
+&phy {
+    status = "okay";
+};
+
+&eth {
+    phy-handle = <&phy>;
+    status = "okay";
+};
+
+&pinctrl {
+    mdio_default: mdio_default {
+        group1 {
+            pinmux = <SMI_MDC_GPIO23>,
+                 <SMI_MDIO_GPIO18>;
+        };
+    };
+};
