@@ -25,6 +25,8 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
  * the IP address is managed somewhere else.
  * The wait from netup_wait_for_network for the described event is controlled with a semaphore. */
 
+#include "netup.h"
+
 #include <assert.h>
 
 #include <zephyr/kernel.h>
