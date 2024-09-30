@@ -34,7 +34,7 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
 #include <zephyr/net/wifi_mgmt.h>
 #endif
 
-K_SEM_DEFINE(network_ready_sem, 0, 1);
+static K_SEM_DEFINE(network_ready_sem, 0, 1);
 
 static struct net_mgmt_event_callback mgmt_cb;
 
