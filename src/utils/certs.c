@@ -28,7 +28,7 @@ static const unsigned char ca_certificate_cloudflare[] = {
 #endif
 
 int
-certs_add_credentials() {
+certs_add_credentials(void) {
     int ret = 0;
 
 #if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)

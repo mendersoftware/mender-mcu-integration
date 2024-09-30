@@ -98,7 +98,7 @@ event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct ne
 }
 
 int
-netup_wait_for_network() {
+netup_wait_for_network(void) {
     net_mgmt_init_event_callback(&mgmt_cb, event_handler, NET_EVENT_IPV4_ADDR_ADD);
     net_mgmt_add_event_callback(&mgmt_cb);
 
