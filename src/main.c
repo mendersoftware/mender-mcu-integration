@@ -33,9 +33,6 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "modules/noop-update-module.h"
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
-// TODO: Rework with MEN-7547
-#define DEVICE_TYPE   "espressif-esp32"
-
 static mender_err_t
 network_connect_cb(void) {
     LOG_INF("network_connect_cb");
@@ -87,12 +84,11 @@ main(void) {
     certs_add_credentials();
 
     LOG_INF("Initializing Mender Client with:");
-    LOG_INF("   Device type:   '%s'", DEVICE_TYPE);
+    LOG_INF("   Device type:   '%s'", CONFIG_MENDER_DEVICE_TYPE);
     LOG_INF("   Identity:      '{\"%s\": \"%s\"}'", mender_identity.name, mender_identity.value);
 
     /* Initialize mender-client */
-    mender_client_config_t    mender_client_config    = { .device_type                  = DEVICE_TYPE,
-                                                          .recommissioning              = false };
+    mender_client_config_t    mender_client_config    = { .device_type = NULL, .recommissioning = false };
     mender_client_callbacks_t mender_client_callbacks = { .network_connect        = network_connect_cb,
                                                           .network_release        = network_release_cb,
                                                           .deployment_status      = deployment_status_cb,
