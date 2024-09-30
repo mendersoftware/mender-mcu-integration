@@ -10,7 +10,7 @@ Mender provides modules to integrate with Real Time Operating Systems (RTOS). Th
 in [`mender-mcu` repository](https://github.com/mendersoftware/mender-mcu/).
 
 This repository contains a reference project on how to integrate a user application with Mender OTA
-Zephyr Module, using QEMU as the board of choice.
+Zephyr Module, with configurations for some boards to choose from.
 
 -------------------------------------------------------------------------------
 
