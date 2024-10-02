@@ -109,6 +109,32 @@ To build the reference project for NXP MR-CANHUBK3, execute:
 west build --board mr_canhubk3 mender-mcu-integration
 ```
 
+### Native simulator
+
+See board support information from [Zephyr Project
+docs](https://docs.zephyrproject.org/latest/boards/native/native_sim/doc/index.html).
+
+*WARNING*: this board does not support MCUBoot, so the default "zephyr-image" Update Module is not
+compiled in, but rather "noop-update", which does nothing. This is meant to be used for testing purposes only.
+
+To set up networking, run `net-setup.sh` from `/path/to/workspace/tools/net-tools`, and see
+instructions in the
+[Zephyr documentation](https://docs.zephyrproject.org/latest/connectivity/networking/qemu_setup.html#setting-up-zephyr-and-nat-masquerading-on-host-to-access-internet)
+on how to configure the host machine to access internet.
+
+To build the reference project for native_sim, execute:
+```
+west build --board native_sim mender-mcu-integration
+```
+Then you can run the binary with:
+```
+./build/zephyr/zephyr.exe
+```
+or
+```
+west build -t run
+```
+
 ## First time board setup
 
 For the first time of using the board, you need to build and flash the bootloader. It can either be
