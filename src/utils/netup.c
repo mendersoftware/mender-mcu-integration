@@ -25,6 +25,8 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
  * the IP address is managed somewhere else.
  * The wait from netup_wait_for_network for the described event is controlled with a semaphore. */
 
+#include "netup.h"
+
 #include <assert.h>
 
 #include <zephyr/kernel.h>
@@ -34,7 +36,7 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
 #include <zephyr/net/wifi_mgmt.h>
 #endif
 
-K_SEM_DEFINE(network_ready_sem, 0, 1);
+static K_SEM_DEFINE(network_ready_sem, 0, 1);
 
 static struct net_mgmt_event_callback mgmt_cb;
 
@@ -98,7 +100,7 @@ event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct ne
 }
 
 int
-netup_wait_for_network() {
+netup_wait_for_network(void) {
     net_mgmt_init_event_callback(&mgmt_cb, event_handler, NET_EVENT_IPV4_ADDR_ADD);
     net_mgmt_add_event_callback(&mgmt_cb);
 
