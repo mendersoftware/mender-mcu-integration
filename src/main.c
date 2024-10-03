@@ -13,7 +13,7 @@
 //    limitations under the License.
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(mender_app, CONFIG_MENDER_LOG_LEVEL);
 
 #include "utils/netup.h"
 #include "utils/certs.h"
@@ -38,25 +38,25 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
 static mender_err_t
 network_connect_cb(void) {
-    LOG_INF("network_connect_cb");
+    LOG_DBG("network_connect_cb");
     return MENDER_OK;
 }
 
 static mender_err_t
 network_release_cb(void) {
-    LOG_INF("network_release_cb");
+    LOG_DBG("network_release_cb");
     return MENDER_OK;
 }
 
 static mender_err_t
 deployment_status_cb(mender_deployment_status_t status, char *desc) {
-    LOG_INF("deployment_status_cb: %s", desc);
+    LOG_DBG("deployment_status_cb: %s", desc);
     return MENDER_OK;
 }
 
 static mender_err_t
 restart_cb(void) {
-    LOG_INF("restart_cb");
+    LOG_DBG("restart_cb");
 
     sys_reboot(SYS_REBOOT_WARM);
 
@@ -68,7 +68,7 @@ static mender_identity_t mender_identity = { .name = "mac", .value = mac_address
 
 static mender_err_t
 get_identity_cb(mender_identity_t **identity) {
-    LOG_INF("get_identity_cb");
+    LOG_DBG("get_identity_cb");
     if (NULL != identity) {
         *identity = &mender_identity;
         return MENDER_OK;
