@@ -13,7 +13,7 @@
 //    limitations under the License.
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(mender_app, CONFIG_MENDER_LOG_LEVEL);
+LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
 #include "utils/netup.h"
 #include "utils/certs.h"
