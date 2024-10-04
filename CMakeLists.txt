@@ -25,9 +25,9 @@ generate_inc_file_for_target(app
     "${ZEPHYR_BINARY_DIR}/include/generated/AmazonRootCA1.cer.inc"
 )
 
-# CloudFlare CA certificate
+# CloudFlare CA certificate from Hosted Mender CloudFlare host. Using:
+# curl --write-out '%{certs}' https://c271964d41749feb10da762816c952ee.r2.cloudflarestorage.com
 # Used as secondary CA certificate for Artifacts
-# TODO: Use Google Trust Services' root CAs instead. Rework with MEN-7550
 generate_inc_file_for_target(app
     "certs/r2.cloudflarestorage.com1.crt"
     "${ZEPHYR_BINARY_DIR}/include/generated/r2.cloudflarestorage.com1.crt.inc"
