@@ -1,0 +1,3 @@
+[submodule "tests/integration/mender_integration"]
+	path = tests/integration/mender_integration
+	url = https://github.com/mendersoftware/integration.git

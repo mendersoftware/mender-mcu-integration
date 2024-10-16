@@ -4,11 +4,23 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(mender-mcu-integration)
 
+if (INTEGRATION_TESTS MATCHES "y")
+target_sources(app PRIVATE
+    tests/integration/src/main.c
+    src/utils/netup.c
+    src/utils/certs.c
+)
+target_include_directories(app PUBLIC
+    tests/integration/src
+)
+target_sources(app PRIVATE tests/integration/src//modules/test-update-module.c)
+else()
 target_sources(app PRIVATE
     src/main.c
     src/utils/netup.c
     src/utils/certs.c
 )
+endif()
 
 target_include_directories(app PUBLIC
     src
