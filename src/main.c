@@ -109,11 +109,11 @@ main(void) {
     LOG_INF("Update Module 'noop-update' initialized");
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
-#ifdef CONFIG_MENDER_CLIENT_ADD_ON_INVENTORY
+#ifdef CONFIG_MENDER_CLIENT_INVENTORY
     mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "bar" }, { .name = NULL, .value = NULL } };
     assert(MENDER_OK == mender_inventory_set(inventory));
     LOG_INF("Mender inventory set");
-#endif /* CONFIG_MENDER_CLIENT_ADD_ON_INVENTORY */
+#endif /* CONFIG_MENDER_CLIENT_INVENTORY */
 
     /* Finally activate mender client */
     if (MENDER_OK != mender_client_activate()) {
