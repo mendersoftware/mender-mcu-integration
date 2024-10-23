@@ -27,6 +27,7 @@ LOG_MODULE_DECLARE(mender_app, LOG_LEVEL_DBG);
 
 #include "netup.h"
 
+#include <stdio.h>
 #include <assert.h>
 
 #include <zephyr/kernel.h>
