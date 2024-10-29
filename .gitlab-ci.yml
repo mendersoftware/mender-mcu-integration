@@ -6,4 +6,50 @@ include:
       - '.gitlab-ci-check-license.yml'
 
 stages:
+  - build
   - test
+
+variables:
+  MENDER_MCU_REVISION: v0.2-update-modules
+
+.boards-matrix:
+  parallel:
+    matrix:
+      - MENDER_MCU_BOARD: [esp32_ethernet_kit/esp32/procpu, esp32s3_devkitc/esp32s3/procpu, olimex_esp32_evb/esp32/procpu, mr_canhubk3, native_sim]
+
+.build-template:
+  tags:
+    - hetzner-amd-beefy
+  stage: build
+  variables:
+    CONTAINER_TAG: "mender-mcu-integration-workspace"
+
+build:workspace:
+  extends: .build-template
+  services:
+    - docker:dind
+  script:
+    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker build
+        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-main
+        --file Dockerfile.ci
+        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+        --push
+        .
+  #rules:
+  #  - if: $CI_COMMIT_BRANCH == "main"
+
+build:board:
+  extends: .build-template
+  image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-main
+  needs:
+    - job: build:workspace
+      optional: true
+  script:
+    - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
+    - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
+    - cd ../modules/mender-mcu && git fetch mender
+    - git checkout mender/${MENDER_MCU_REVISION} && cd -
+    - west build --board ${MENDER_MCU_BOARD}
+  parallel: !reference [.boards-matrix, parallel]
