@@ -1,0 +1,46 @@
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+# https://docs.zephyrproject.org/3.7.0/develop/getting_started/index.html#install-dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  pip \
+  ccache \
+  cmake \
+  file \
+  g++-multilib \
+  gcc \
+  gcc-multilib \
+  git \
+  gperf \
+  make \
+  ninja-build \
+  wget \
+  xz-utils
+
+ARG ZEPHYR_SDK_VERSION=0.17.0
+RUN mkdir /opt/toolchains && wget -qO- https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64_minimal.tar.xz \
+  | tar -xJ -C /opt/toolchains \
+  && /opt/toolchains/zephyr-sdk-${ZEPHYR_SDK_VERSION}/setup.sh -c \
+  -t arm-zephyr-eabi \
+  -t xtensa-espressif_esp32_zephyr-elf \
+  -t xtensa-espressif_esp32s3_zephyr-elf
+
+# tell cmake where to find the Zephyr SDK cmake packages
+ENV CMAKE_PREFIX_PATH=/opt/toolchains
+
+RUN pip install --no-cache-dir west==1.2.0 --break-system-packages
+
+COPY west.yml /zephyr-workspace-cache/.manifest/west.yml
+
+# Create a cache of the workspace
+RUN cd /zephyr-workspace-cache \
+  && west init -l .manifest \
+  && west update --narrow --fetch-opt=--filter=tree:0
+
+# install Python dependencies for the Zephyr workspace
+RUN cd /zephyr-workspace-cache \
+  && pip install --no-cache-dir -r zephyr/scripts/requirements.txt --break-system-packages
+
+# Fix ESP32 build libraries not found error
+RUN cd /zephyr-workspace-cache \
+  && west blobs fetch hal_espressif
