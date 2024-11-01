@@ -96,32 +96,45 @@ main(void) {
                                                           .get_identity           = get_identity_cb,
                                                           .get_user_provided_keys = NULL };
 
-    assert(MENDER_OK == mender_client_init(&mender_client_config, &mender_client_callbacks));
+    if (MENDER_OK != mender_client_init(&mender_client_config, &mender_client_callbacks)) {
+        LOG_ERR("Failed to initialize the client");
+        goto END;
+    }
     LOG_INF("Mender client initialized");
 
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
-    assert(MENDER_OK == mender_zephyr_image_register_update_module());
+    if (MENDER_OK != mender_zephyr_image_register_update_module()) {
+        LOG_ERR("Failed to register the zephyr-image Update Module");
+        goto END;
+    }
     LOG_INF("Update Module 'zephyr-image' initialized");
 #endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_APP_NOOP_UPDATE_MODULE
-    assert(MENDER_OK == noop_update_module_register());
+    if (MENDER_OK != noop_update_module_register()) {
+        LOG_ERR("Failed to register the noop Update Module");
+        goto END;
+    }
     LOG_INF("Update Module 'noop-update' initialized");
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_CLIENT_INVENTORY
     mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "bar" }, { .name = NULL, .value = NULL } };
-    assert(MENDER_OK == mender_inventory_set(inventory));
+    if (MENDER_OK != mender_inventory_set(inventory)) {
+        LOG_ERR("Failed to set the inventory");
+        goto END;
+    }
     LOG_INF("Mender inventory set");
 #endif /* CONFIG_MENDER_CLIENT_INVENTORY */
 
     /* Finally activate mender client */
     if (MENDER_OK != mender_client_activate()) {
-        LOG_ERR("Unable to activate mender-client");
-    } else {
-        LOG_INF("Mender client activated and running!");
+        LOG_ERR("Unable to activate the client");
+        goto END;
     }
+    LOG_INF("Mender client activated and running!");
 
+END:
     k_sleep(K_FOREVER);
 
     return 0;

@@ -54,7 +54,7 @@ static struct wifi_connect_req_params cnx_params = {
 
 static void
 wifi_connect(struct net_if *iface) {
-    int            ret   = 0;
+    int ret = 0;
 
     LOG_INF("Connecting to wireless network %s...", cnx_params.ssid);
 
@@ -127,7 +127,7 @@ void
 netup_get_mac_address(char *address) {
     assert(NULL != address);
 
-    struct net_if *iface    = net_if_get_first_up();
+    struct net_if *iface = net_if_get_first_up();
     assert(NULL != iface);
 
     struct net_linkaddr *linkaddr = net_if_get_link_addr(iface);
