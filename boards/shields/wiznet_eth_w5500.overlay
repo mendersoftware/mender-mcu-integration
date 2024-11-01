@@ -1,0 +1,22 @@
+/* This overlay is based on ARCELI W5500 ETH,
+ * changing the pinout for the WIZNet produced shield.
+ *
+ * See schematic at:
+ * https://docs.wiznet.io/Product/Open-Source-Hardware/w5500_ethernet_shield#technical-reference
+ */
+
+&arduino_spi {
+	status = "okay";
+
+	eth_w5500_arceli_eth_w5500: eth_w5500@0 {
+		compatible = "wiznet,w5500";
+		reg = <0x0>;
+		spi-max-frequency = <14000000>;
+		int-gpios = <&arduino_header 8 GPIO_ACTIVE_LOW>;	/* D2 */
+
+		/* *************************** */
+		/* Write here your MAC address */
+		/* *************************** */
+		local-mac-address = [ DE AD BE EF FE ED ];
+	};
+};
