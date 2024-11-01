@@ -17,10 +17,10 @@ endif # WIFI
 endmenu
 
 
-menu "Inventory configuration"
+menu "No-op Update Module"
 
 config MENDER_APP_NOOP_UPDATE_MODULE
-	bool "No-op Update Module"
+	bool "Enable no-op Update Module"
 	default n
 	help
 		An Update Module that does nothing. Useful for inspiration on how to get started writing
