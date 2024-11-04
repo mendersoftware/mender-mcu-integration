@@ -49,6 +49,61 @@ the officially supported boards that also support MCU boot:
 * [Zephyr Project supported boards with MCU boot](https://docs.zephyrproject.org/latest/gsearch.html?q=MCUboot&check_keywords=yes&area=default#gsc.tab=0&gsc.q=MCUboot&gsc.ref=more%3Aboards&gsc.sort=)
 
 
+### Nordic Semiconductor nRF52840 DevKit + WIZnet W5500 Ethernet Shield
+
+See board support information an [Zephyr Project
+docs](https://docs.zephyrproject.org/latest/boards/nordic/nrf52840dk/doc/index.html). Follow the
+instructions there to install and configure all the necessary software for programming and
+debugging.
+
+For the integration, we use an W5500 Ethernet Shield. See shield description in [WIZnet website](https://docs.wiznet.io/Product/Open-Source-Hardware/w5500_ethernet_shield)
+
+Build the bootloader and the reference project with `sysbuild` with:
+
+```
+west build \
+  --sysbuild \
+  --board nrf52840dk/nrf52840  \
+  mender-mcu-integration \
+  -- \
+  -DEXTRA_DTC_OVERLAY_FILE=boards/shields/wiznet_eth_w5500.overlay \
+  -DEXTRA_CONF_FILE=boards/shields/wiznet_eth_w5500.conf
+```
+
+Flash the two binaries to your board with:
+
+```
+west flash
+```
+
+The application should now start! You can monitor the serial line with:
+
+```
+minicom -D /dev/ttyACM1 -b 115200 -w
+```
+
+Once the bootloader is flashed, the next time you need to flash the application you can do it with:
+```
+west flash --domain mender-mcu-integration
+```
+
+#### Restarting the board
+
+To have a fresh start of the board, reset it with:
+```
+nrfjprog --reset
+```
+
+#### Debugging with gdb
+
+You can attach with `gdb` at any moment of the execution with:
+```
+west attach --domain mender-mcu-integration
+```
+
+Enjoy your debugging session!
+
+
 ### ESP32-Ethernet-Kit
 
 See board support information an [Zephyr Project
