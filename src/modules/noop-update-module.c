@@ -47,9 +47,9 @@ noop_update_module_register(void) {
     noop_update_module->requires_reboot                                = false;
     noop_update_module->supports_rollback                              = false;
 
-    if (MENDER_OK != (ret = mender_client_register_update_module(noop_update_module))) {
+    if (MENDER_OK != (ret = mender_update_module_register(noop_update_module))) {
         mender_log_error("Unable to register the 'noop-update' update module");
-        /* mender_client_register_update_module() takes ownership if it succeeds */
+        /* mender_update_module_register() takes ownership if it succeeds */
         free(noop_update_module);
         return ret;
     }

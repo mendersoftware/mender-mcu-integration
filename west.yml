@@ -13,7 +13,7 @@ manifest:
       import: true
     - name: mender-mcu
       remote: mender
-      revision: v0.2-update-modules
+      revision: v0.3-inventory
       path: modules/mender-mcu
       import: true
 
