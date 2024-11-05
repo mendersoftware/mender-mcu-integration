@@ -10,7 +10,7 @@ stages:
   - test
 
 variables:
-  MENDER_MCU_REVISION: v0.2-update-modules
+  MENDER_MCU_REVISION: v0.3-inventory
   IMAGE_VERSION: main
 
 .boards-matrix:
