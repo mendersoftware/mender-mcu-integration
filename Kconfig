@@ -1,8 +1,8 @@
 mainmenu "Mender App"
 
-menu "Mender App WIFI Configuration"
-
 if WIFI
+
+menu "Mender App WIFI Configuration"
 
 config MENDER_APP_WIFI_SSID
 	string "WIFI SSID - Network name"
@@ -12,10 +12,9 @@ config MENDER_APP_WIFI_PSK
 	string "WIFI PSK - Network password key"
 	default "secret_passwd"
 
-endif # WIFI
-
 endmenu
 
+endif # WIFI
 
 menu "No-op Update Module"
 
