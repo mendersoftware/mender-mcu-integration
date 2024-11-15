@@ -1,3 +1,6 @@
 [submodule "tests/integration/mender_integration"]
 	path = tests/integration/mender_integration
 	url = https://github.com/mendersoftware/integration.git
+[submodule "tests/integration/mender_server"]
+	path = tests/integration/mender_server
+	url = https://github.com/mendersoftware/mender-server.git
