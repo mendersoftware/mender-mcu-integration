@@ -19,8 +19,6 @@ import helpers
 
 from mender_integration.tests.MenderAPI import logger
 
-from server import Server
-
 from helpers import stdout
 from device import NativeSim
 
@@ -33,17 +31,11 @@ def teardown():
     os.remove(helpers.get_header_file())
 
 
-def test_deployment_abort(teardown):
+def test_deployment_abort(teardown, server):
 
     """
     Sample test to demonstrate use of framework
     """
-
-    # Use hosted.mender.io for now, as there are problems with
-    # the demo server
-    # Temporary workaround for the PoC
-    auth_token = os.getenv("TEST_AUTH_TOKEN")
-    server = Server(auth_token=auth_token, host="hosted.mender.io")
 
     # Temporary workaround for the PoC
     device_id = os.getenv("TEST_DEVICE_ID")
