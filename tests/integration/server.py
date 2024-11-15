@@ -15,13 +15,11 @@
 import os
 
 from helpers import get_uncompressed_mender_artifact
-
 from mender_integration.tests.MenderAPI import logger
 
-from mender_integration.testutils.api.client import ApiClient
-from mender_integration.testutils.api import deployments as deployments
-
 URL_DEPLOYMENTS_STATUS = "/deployments/{id}/status"
+from mender_server.backend.tests.integration.tests.testutils.api.client import ApiClient
+from mender_server.backend.tests.integration.tests.testutils.api import deployments
 
 
 class Server:
