@@ -22,9 +22,11 @@
 static const unsigned char ca_certificate_amazon[] = {
 #include "AmazonRootCA1.cer.inc"
 };
+#ifdef CONFIG_MENDER_NET_CA_CERTIFICATE_TAG_SECONDARY_ENABLED
 static const unsigned char ca_certificate_cloudflare[] = {
 #include "r2.cloudflarestorage.com1.crt.inc"
 };
+#endif
 #endif
 
 int
@@ -36,8 +38,10 @@ certs_add_credentials(void) {
     if (ret != 0) {
         return ret;
     }
+#ifdef CONFIG_MENDER_NET_CA_CERTIFICATE_TAG_SECONDARY_ENABLED
     ret = tls_credential_add(
         CONFIG_MENDER_NET_CA_CERTIFICATE_TAG_SECONDARY, TLS_CREDENTIAL_CA_CERTIFICATE, ca_certificate_cloudflare, sizeof(ca_certificate_cloudflare));
+#endif
 #endif
 
     return ret;
