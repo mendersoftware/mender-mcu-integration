@@ -12,6 +12,9 @@ stages:
 variables:
   MENDER_MCU_REVISION: v0.3-inventory
   IMAGE_VERSION: main
+  DOCKER_VERSION:
+    value: "27.3"
+    description: "Version of docker to use in pipelines"
 
 .boards-matrix:
   parallel:
@@ -35,7 +38,8 @@ variables:
 build:workspace:
   extends: .build-template
   services:
-    - docker:dind
+    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
+      alias: docker
   script:
     - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
