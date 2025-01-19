@@ -69,9 +69,10 @@ build:board:
     - job: build:workspace
       optional: true
   script:
+    - cd /zephyr-workspace-cache
     - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
     - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
-    - cd ../modules/mender-mcu && git fetch mender
+    - cd modules/mender-mcu && git fetch mender
     - git checkout mender/${MENDER_MCU_REVISION} && cd -
-    - west build --board ${MENDER_MCU_BOARD}
+    - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
   parallel: !reference [.boards-matrix, parallel]
