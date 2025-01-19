@@ -31,3 +31,5 @@ generate_inc_file_for_target(app
     "certs/GoogleRootR4.cer"
     "${ZEPHYR_BINARY_DIR}/include/generated/GoogleRootR4.cer.inc"
 )
+
+file(COPY_FILE "config-tls-mender.h" "${ZEPHYR_BINARY_DIR}/include/generated/config-tls-mender.h")
