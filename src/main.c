@@ -64,7 +64,7 @@ static char              mac_address[18] = { 0 };
 static mender_identity_t mender_identity = { .name = "mac", .value = mac_address };
 
 static mender_err_t
-get_identity_cb(mender_identity_t **identity) {
+get_identity_cb(const mender_identity_t **identity) {
     LOG_DBG("get_identity_cb");
     if (NULL != identity) {
         *identity = &mender_identity;
