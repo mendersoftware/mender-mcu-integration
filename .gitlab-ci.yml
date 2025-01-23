@@ -10,7 +10,7 @@ stages:
   - test
 
 variables:
-  MENDER_MCU_REVISION: v0.3-inventory
+  MENDER_MCU_REVISION: main
   IMAGE_VERSION: main
   DOCKER_VERSION:
     value: "27.3"
@@ -52,10 +52,11 @@ build:workspace:
     - echo "IMAGE_VERSION=$CI_COMMIT_BRANCH" >> image_version.env
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
-    # Rebuild the workspace image if the Dockerfile.ci changes
+    # Rebuild the workspace image if the Dockerfile.ci or west.yml changes
     - changes:
         paths:
           - Dockerfile.ci
+          - west.yml
         compare_to: main
   artifacts:
     reports:
