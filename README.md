@@ -48,6 +48,11 @@ the officially supported boards that also support MCU boot:
 
 * [Zephyr Project supported boards with MCU boot](https://docs.zephyrproject.org/latest/gsearch.html?q=MCUboot&check_keywords=yes&area=default#gsc.tab=0&gsc.q=MCUboot&gsc.ref=more%3Aboards&gsc.sort=)
 
+When building for one of the Espressif boards (ESP32), binary blobs needs to be fetched with:
+
+```
+west blobs fetch hal_espressif
+```
 
 ### Nordic Semiconductor nRF52840 DevKit + WIZnet W5500 Ethernet Shield
 
