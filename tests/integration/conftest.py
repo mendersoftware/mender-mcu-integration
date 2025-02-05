@@ -13,11 +13,16 @@
 #    limitations under the License.
 
 import os
-from os import path
-
 import sys
 import logging
+import tempfile
+import subprocess
 import pytest
+
+from helpers import THIS_DIR
+
+from os import path
+from pathlib import Path
 
 sys.path += [path.join(path.dirname(__file__), "mender_server/")]
 sys.path += [
@@ -27,6 +32,7 @@ sys.path += [
 from server import Server
 
 logging.getLogger("requests").setLevel(logging.CRITICAL)
+logging.getLogger("filelock").setLevel(logging.CRITICAL)
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
@@ -61,3 +67,60 @@ def setup_user():
 def server(setup_user, request):
     host_url = request.config.getoption("--host")
     return Server(auth_token=setup_user, host=host_url)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def get_build_dir():
+    return tempfile.mkdtemp()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def get_coverage(request, get_build_dir):
+    yield
+    test_name = request.node.name
+    command = [
+        "lcov",
+        "--capture",
+        "--directory",
+        os.path.join(get_build_dir, "modules/mender-mcu"),
+        "--output-file",
+        os.path.join(THIS_DIR, f"{test_name}.info"),
+        "--rc",
+        "lcov_branch_coverage=1",
+    ]
+    exclude = ["--exclude", "*/modules/crypto/*", "--exclude", "*/zephyr/include/*"]
+    command.extend(exclude)
+
+    cov = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+
+    logging.info(" ".join(command))
+
+    logger.info(f"Generating coverage for {test_name}")
+    cov.wait()
+    if os.path.isfile(get_build_dir):
+        os.remove(get_build_dir)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def aggregate_coverage():
+    yield
+    covfiles = Path(THIS_DIR).rglob("test*.info")
+    files = [file for file in covfiles if file.is_file()]
+    command = ["lcov"]
+    for file in files:
+        command.extend(["--add-tracefile", str(file)])
+    command.extend(["-o", "coverage.lcov"])
+
+    logging.info("Aggregating coverage reports")
+    cov = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    cov.wait()
+
+    for file in files:
+        if os.path.isfile(file):
+            os.remove(file)
+        else:
+            pytest.fail()
