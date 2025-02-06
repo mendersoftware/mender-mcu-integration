@@ -72,7 +72,7 @@ test_update_module_register(void) {
     test_update_module->requires_reboot                                = UM_REQUIRES_REBOOT;
     test_update_module->supports_rollback                              = UM_SUPPORTS_ROLLBACK;
 
-    if (MENDER_OK != (ret = mender_client_register_update_module(test_update_module))) {
+    if (MENDER_OK != (ret = mender_update_module_register(test_update_module))) {
         mender_log_error("Unable to register the 'test-update' update module");
         /* mender_client_register_update_module() takes ownership if it succeeds */
         free(test_update_module);
