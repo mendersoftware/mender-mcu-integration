@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.20.0)
 
+# ESP32-S3-DevkitC is the default board
+set(BOARD
+    "esp32s3_devkitc/esp32s3/procpu"
+    CACHE
+    STRING
+    "Board for the Zephyr application"
+)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(mender-mcu-integration)
