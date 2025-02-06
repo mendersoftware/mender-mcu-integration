@@ -13,13 +13,17 @@
 #    limitations under the License.
 
 import os
+import logging
 
 from helpers import get_uncompressed_mender_artifact
-from mender_integration.tests.MenderAPI import logger
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 URL_DEPLOYMENTS_STATUS = "/deployments/{id}/status"
-from mender_server.backend.tests.integration.tests.testutils.api.client import ApiClient
-from mender_server.backend.tests.integration.tests.testutils.api import deployments
+from mender_server.backend.tests.integration.testutils.api.client import ApiClient
+from mender_server.backend.tests.integration.testutils.api import deployments
 
 
 class Server:

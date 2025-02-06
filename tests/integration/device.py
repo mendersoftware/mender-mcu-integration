@@ -18,7 +18,9 @@ import pytest
 import shutil
 import tempfile
 import subprocess
-from mender_integration.tests.MenderAPI import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 from helpers import stdout
 from helpers import create_header_file
@@ -80,22 +82,30 @@ class NativeSim:
     def compile(self, pristine=False, extra_variables=None):
         if extra_variables is None:
             extra_variables = []
-
         if compile:
             variables = [
-                "-DCONFIG_LOG_ALWAYS_RUNTIME=y",
-                "-DCONFIG_LOG_MODE_IMMEDIATE=y",
-                "-DCONFIG_MENDER_LOG_LEVEL_OFF=n",
-                "-DCONFIG_MENDER_LOG_LEVEL_DBG=y",
-                f'-DINTEGRATION_TESTS="y"',
+                "-DBUILD_INTEGRATION_TESTS=ON",
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
                 f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
             ] + extra_variables
+
             command = (
-                ["west", "build", "--board", "native_sim", WORKSPACE_DIRECTORY]
-                + variables
-                + ["--build-dir", f"{self.build_dir}"]
+                [
+                    "west",
+                    "build",
+                    "--board",
+                    "native_sim",
+                    WORKSPACE_DIRECTORY,
+                    "--build-dir",
+                    f"{self.build_dir}",
+                ]
                 + (["--pristine"] if pristine else [])
+                + [
+                    "--",
+                    "-DEXTRA_CONF_FILE="
+                    + f"{os.path.join(THIS_DIR, 'integration_tests.conf')}",
+                ]
+                + variables
             )
 
             try:
