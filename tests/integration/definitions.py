@@ -43,3 +43,6 @@ GET_IDENTITY_CALLBACK = "GET_IDENTITY_CALLBACK"
 UM_REQUIRES_REBOOT = "UM_REQUIRES_REBOOT"
 # Update module supports rollback
 UM_SUPPORTS_ROLLBACK = "UM_SUPPORTS_ROLLBACK"
+
+# Mac address used in identity (used in src/callback.c)
+MAC_ADDRESS = "MAC_ADDRESS"

@@ -52,7 +52,11 @@ mender_restart_cb(void) {
     return MENDER_OK;
 }
 
-static char              mac_address[18] = { 0 };
+#ifndef MAC_ADDRESS
+#define MAC_ADDRESS "11:11:22:33:55:88"
+#endif /* MAC_ADDRESS */
+static char mac_address[18] = MAC_ADDRESS;
+
 static mender_identity_t mender_identity = { .name = "mac", .value = mac_address };
 
 mender_err_t
