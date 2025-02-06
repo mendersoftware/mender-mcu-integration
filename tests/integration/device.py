@@ -80,24 +80,30 @@ class NativeSim:
     def compile(self, pristine=False, extra_variables=None):
         if extra_variables is None:
             extra_variables = []
-
         if compile:
             variables = [
-                "-DINTEGRATION_TESTS=y",
-                "-DCONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE=n",
-                "-DCONFIG_MENDER_APP_NOOP_UPDATE_MODULE=n",
-                "-DCONFIG_LOG_ALWAYS_RUNTIME=y",
-                "-DCONFIG_LOG_MODE_IMMEDIATE=y",
-                "-DCONFIG_MENDER_LOG_LEVEL_OFF=n",
-                "-DCONFIG_MENDER_LOG_LEVEL_DBG=y",
+                "-DBUILD_INTEGRATION_TESTS=ON",
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
                 f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
             ] + extra_variables
+
             command = (
-                ["west", "build", "--board", "native_sim", WORKSPACE_DIRECTORY]
-                + variables
-                + ["--build-dir", f"{self.build_dir}"]
+                [
+                    "west",
+                    "build",
+                    "--board",
+                    "native_sim",
+                    WORKSPACE_DIRECTORY,
+                    "--build-dir",
+                    f"{self.build_dir}",
+                ]
                 + (["--pristine"] if pristine else [])
+                + [
+                    "--",
+                    "-DEXTRA_CONF_FILE="
+                    + f"{os.path.join(THIS_DIR, 'integration_tests.conf')}",
+                ]
+                + variables
             )
 
             try:
