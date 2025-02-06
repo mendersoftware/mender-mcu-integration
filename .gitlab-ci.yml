@@ -8,7 +8,7 @@ include:
 stages:
   - build
   - test
-  - publish
+  #- publish
 
 variables:
   MENDER_MCU_REVISION: main
@@ -80,7 +80,8 @@ build:board:
   parallel: !reference [.boards-matrix, parallel]
 
 
-publish:tests:
+#publish:tests:
+test:publish:
   stage: publish
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.11
   rules:
