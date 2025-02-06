@@ -12,23 +12,11 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(mender-mcu-integration)
 
-if (INTEGRATION_TESTS MATCHES "y")
-target_sources(app PRIVATE
-    tests/integration/src/main.c
-    src/utils/netup.c
-    src/utils/certs.c
-)
-target_include_directories(app PUBLIC
-    tests/integration/src
-)
-target_sources(app PRIVATE tests/integration/src//modules/test-update-module.c)
-else()
 target_sources(app PRIVATE
     src/main.c
     src/utils/netup.c
     src/utils/certs.c
 )
-endif()
 
 target_include_directories(app PUBLIC
     src
@@ -36,6 +24,15 @@ target_include_directories(app PUBLIC
 
 if(CONFIG_MENDER_APP_NOOP_UPDATE_MODULE MATCHES "y")
     target_sources(app PRIVATE src/modules/noop-update-module.c)
+endif()
+
+option(BUILD_INTEGRATION_TESTS "Enable integration tests" OFF)
+
+if(BUILD_INTEGRATION_TESTS)
+    target_compile_definitions(app PRIVATE BUILD_INTEGRATION_TESTS)
+    target_include_directories(app PUBLIC tests/integration/src)
+    target_sources(app PRIVATE tests/integration/src/modules/test-update-module.c)
+    target_sources(app PRIVATE tests/integration/src/callbacks.c)
 endif()
 
 # Amazon Root CA 1 certificate from https://www.amazontrust.com/repository

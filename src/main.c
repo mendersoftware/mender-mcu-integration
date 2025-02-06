@@ -15,6 +15,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
+#include "utils/callbacks.h"
 #include "utils/netup.h"
 #include "utils/certs.h"
 
@@ -24,6 +25,11 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include <mender/client.h>
 #include <mender/inventory.h>
 
+#ifdef BUILD_INTEGRATION_TESTS
+#include "modules/test-update-module.h"
+#include "test_definitions.h"
+#endif /* BUILD_INTEGRATION_TESTS */
+
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
 #include <mender/zephyr-image-update-module.h>
 #endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
@@ -32,26 +38,26 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "modules/noop-update-module.h"
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
-static mender_err_t
-network_connect_cb(void) {
+MENDER_FUNC_WEAK mender_err_t
+mender_network_connect_cb(void) {
     LOG_DBG("network_connect_cb");
     return MENDER_OK;
 }
 
-static mender_err_t
-network_release_cb(void) {
+MENDER_FUNC_WEAK mender_err_t
+mender_network_release_cb(void) {
     LOG_DBG("network_release_cb");
     return MENDER_OK;
 }
 
-static mender_err_t
-deployment_status_cb(mender_deployment_status_t status, const char *desc) {
+MENDER_FUNC_WEAK mender_err_t
+mender_deployment_status_cb(mender_deployment_status_t status, char *desc) {
     LOG_DBG("deployment_status_cb: %s", desc);
     return MENDER_OK;
 }
 
-static mender_err_t
-restart_cb(void) {
+MENDER_FUNC_WEAK mender_err_t
+mender_restart_cb(void) {
     LOG_DBG("restart_cb");
 
     sys_reboot(SYS_REBOOT_WARM);
@@ -62,8 +68,8 @@ restart_cb(void) {
 static char              mac_address[18] = { 0 };
 static mender_identity_t mender_identity = { .name = "mac", .value = mac_address };
 
-static mender_err_t
-get_identity_cb(const mender_identity_t **identity) {
+MENDER_FUNC_WEAK mender_err_t
+mender_get_identity_cb(const mender_identity_t **identity) {
     LOG_DBG("get_identity_cb");
     if (NULL != identity) {
         *identity = &mender_identity;
@@ -96,11 +102,11 @@ main(void) {
 
     /* Initialize mender-client */
     mender_client_config_t    mender_client_config    = { .device_type = NULL, .recommissioning = false };
-    mender_client_callbacks_t mender_client_callbacks = { .network_connect        = network_connect_cb,
-                                                          .network_release        = network_release_cb,
-                                                          .deployment_status      = deployment_status_cb,
-                                                          .restart                = restart_cb,
-                                                          .get_identity           = get_identity_cb,
+    mender_client_callbacks_t mender_client_callbacks = { .network_connect        = mender_network_connect_cb,
+                                                          .network_release        = mender_network_release_cb,
+                                                          .deployment_status      = mender_deployment_status_cb,
+                                                          .restart                = mender_restart_cb,
+                                                          .get_identity           = mender_get_identity_cb,
                                                           .get_user_provided_keys = NULL };
 
     if (MENDER_OK != mender_client_init(&mender_client_config, &mender_client_callbacks)) {
@@ -124,6 +130,14 @@ main(void) {
     }
     LOG_INF("Update Module 'noop-update' initialized");
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
+
+#ifdef BUILD_INTEGRATION_TESTS
+    if (MENDER_OK != test_update_module_register()) {
+        LOG_ERR("Failed to register the test Update Module");
+        goto END;
+    }
+    LOG_INF("Update Module 'test-update' initialized");
+#endif /* BUILD_INTEGRATION_TESTS */
 
 #ifdef CONFIG_MENDER_CLIENT_INVENTORY
     if (MENDER_OK != mender_inventory_add_callback(persistent_inventory_cb, true)) {
