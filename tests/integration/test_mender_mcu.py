@@ -29,7 +29,8 @@ import definitions
 @pytest.fixture
 def teardown():
     yield
-    os.remove(helpers.get_header_file())
+    if os.path.exists(helpers.get_header_file()):
+        os.remove(helpers.get_header_file())
 
 
 def test_deployment_abort(teardown, server):
