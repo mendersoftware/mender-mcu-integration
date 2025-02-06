@@ -33,7 +33,17 @@ def teardown():
         os.remove(helpers.get_header_file())
 
 
-def test_deployment_abort(teardown, server):
+@pytest.fixture(scope="session")
+def check_variables():
+    missing_vars = []
+    for var in ("TEST_DEVICE_ID", "TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
+        if var not in os.environ:
+            missing_vars.append(var)
+    if missing_vars:
+        pytest.fail(f"Failed to set {', '.join(missing_vars)}")
+
+
+def test_deployment_abort(teardown, server, check_variables):
 
     """
     Sample test to demonstrate use of framework
