@@ -25,9 +25,13 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "mender-inventory.h"
 #include "mender-flash.h"
 
-#include "modules/test-update-module.h"
+#ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
+#include "mender-zephyr-image-update-module.h"
+#endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
 
-#include "test_definitions.h"
+#ifdef CONFIG_MENDER_APP_NOOP_UPDATE_MODULE
+#include "modules/noop-update-module.h"
+#endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
 static mender_err_t
 network_connect_cb(void) {
@@ -72,7 +76,7 @@ static char              mac_address[18] = { 0 };
 static mender_identity_t mender_identity = { .name = "mac", .value = mac_address };
 
 static mender_err_t
-get_identity_cb(mender_identity_t **identity) {
+get_identity_cb(const mender_identity_t **identity) {
     LOG_DBG("get_identity_cb");
 #ifdef GET_IDENTITY_CALLBACK
     GET_IDENTITY_CALLBACK();
