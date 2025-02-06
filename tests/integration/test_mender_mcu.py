@@ -16,8 +16,9 @@ import os
 import time
 import pytest
 import helpers
+import logging
 
-from mender_integration.tests.MenderAPI import logger
+logger = logging.getLogger(__name__)
 
 from helpers import stdout
 from device import NativeSim

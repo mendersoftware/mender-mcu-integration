@@ -18,7 +18,9 @@ import pytest
 import shutil
 import tempfile
 import subprocess
-from mender_integration.tests.MenderAPI import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 from helpers import stdout
 from helpers import create_header_file

@@ -11,9 +11,6 @@ To run the current tests, you will need to export
 
 as these are used to connect to hosted Mender.
 
-You will also need to run `git submodule update --init --recursive` to get
-the parts from mender-server (there are also parts from mender-integration, but
-as of now this is just some small logging parts etc., we should remove the dependency on
-the integration repo).
+Run `git submodule update --init --recursive`.
 
 Run the tests with `pytest -s --host hosted.mender.io` in the `tests/integration` directory.
