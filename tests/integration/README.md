@@ -1,9 +1,5 @@
 ## Running the integration tests locally
 
-###### NOTE: This does _not_ work with mender-mcu main due to restructuring of CMakeLists etc.
-The latest commit this is tested with is `208190909d47d48a5bcf33ac0aa606dc05af4182` (mender-mcu)
-There is a ticket to review the `C parts`, so this should be rebased on top of main there.
-
 Pre-requisites:
  - networking for the native-sim board (see README)
  - pytest

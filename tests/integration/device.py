@@ -83,11 +83,13 @@ class NativeSim:
 
         if compile:
             variables = [
+                "-DINTEGRATION_TESTS=y",
+                "-DCONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE=n",
+                "-DCONFIG_MENDER_APP_NOOP_UPDATE_MODULE=n",
                 "-DCONFIG_LOG_ALWAYS_RUNTIME=y",
                 "-DCONFIG_LOG_MODE_IMMEDIATE=y",
                 "-DCONFIG_MENDER_LOG_LEVEL_OFF=n",
                 "-DCONFIG_MENDER_LOG_LEVEL_DBG=y",
-                f'-DINTEGRATION_TESTS="y"',
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
                 f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
             ] + extra_variables
