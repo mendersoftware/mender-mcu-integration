@@ -21,7 +21,10 @@ import subprocess
 from os import path
 from contextlib import contextmanager
 
-from mender_integration.tests.MenderAPI import logger
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 THIS_DIR = path.dirname(os.path.abspath(__file__))
 
