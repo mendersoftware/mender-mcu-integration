@@ -19,29 +19,26 @@ import sys
 import logging
 import pytest
 
-sys.path += [path.join(path.dirname(__file__), "mender_integration")]
+sys.path += [path.join(path.dirname(__file__), "mender_server/")]
 sys.path += [
-    path.join(path.dirname(__file__), "mender_server/backend/tests/integration/tests/")
+    path.join(path.dirname(__file__), "mender_server/backend/tests/integration/")
 ]
 
 from server import Server
-
-from mender_integration.tests.conftest import unique_test_name
-from mender_integration.tests.log import setup_test_logger
 
 logging.getLogger("requests").setLevel(logging.CRITICAL)
 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.DEBUG)
 
-collect_ignore = ["mender_integration", "mender_server"]
+collect_ignore = ["mender_server"]
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="function", autouse=True)
 def testlogger(request):
-    test_name = unique_test_name(request)
-    setup_test_logger(test_name)
-    logging.getLogger().info("%s is starting.... " % test_name)
+    logging.getLogger().info("%s is starting.... " % __name__)
 
 
 def pytest_addoption(parser):
