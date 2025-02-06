@@ -1,9 +1,18 @@
 ## Running the integration tests locally
 
-Pre-requisites:
+### Pre-requisites:
  - networking for the native-sim board (see README)
- - pytest
+ - mender-artifact
 
+The two following commands assumes you're in `tests/integration`:
+
+Python requirements from mender-server
+- `pip install -r mender_server/backend/tests/requirements-integration.txt`
+
+Requirements from zephyr
+- `pip install -r ../../../zephyr/scripts/requirements-base.txt`
+
+### Running tests
 To run the current tests, you will need to export
  - TEST_DEVICE_ID
  - TEST_TENANT_TOKEN
