@@ -8,6 +8,7 @@ include:
 stages:
   - build
   - test
+  - publish
 
 variables:
   MENDER_MCU_REVISION: main
@@ -76,3 +77,34 @@ build:board:
     - git checkout FETCH_HEAD && cd -
     - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
   parallel: !reference [.boards-matrix, parallel]
+
+
+publish:tests:
+  stage: publish
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.11
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    # TODO: remove when tests run in pipeline
+    # We don't have anything to publish yet
+    - when: never
+  before_script:
+    # Install dependencies
+    - apt update && apt install -yyq lcov
+    - pip install cpp-coveralls pyyaml
+
+    # eddyxu/cpp-coveralls appears dead, but there doesn't seem to be an
+    # alternative. Use this patch from someone who attempted to fix it. An
+    # alternative to this is to use pyyaml<6, but it's better to use just one
+    # old component than two.
+    - curl -f https://github.com/eddyxu/cpp-coveralls/commit/067c837c04e039e8c70aa53bceda1cded6751408.patch | patch -f /usr/local/lib/python3.11/site-packages/cpp_coveralls/__init__.py
+
+    # Set "TRAVIS_*" variables based on GitLab ones
+    - export TRAVIS_BRANCH=$PARENT_MENDER_MCU_COMMIT_BRANCH
+    - export TRAVIS_JOB_ID=$PARENT_MENDER_MCU_PIPELINE_ID
+
+  script:
+    - 'echo "service_name: gitlab-ci" > .coveralls.yml'
+    - cpp-coveralls
+      --repo-token ${MENDER_MCU_COVERALLS_TOKEN}
+      --no-gcov
+      --lcov-file tests/integration/coverage.lcov
