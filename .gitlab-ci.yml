@@ -51,7 +51,7 @@ build:workspace:
         .
     - echo "IMAGE_VERSION=$CI_COMMIT_BRANCH" >> image_version.env
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "pipeline"
     # Rebuild the workspace image if the Dockerfile.ci or west.yml changes
     - changes:
         paths:
