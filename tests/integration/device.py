@@ -24,8 +24,7 @@ logger = logging.getLogger(__name__)
 
 from helpers import stdout
 from helpers import create_header_file
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+from helpers import THIS_DIR
 
 # This has to point the west workspace containing mender-mcu-integration
 WORKSPACE_DIRECTORY = os.path.join(THIS_DIR, "../../")
@@ -56,7 +55,7 @@ class DeviceStatus:
 
 
 class NativeSim:
-    def __init__(self, stdout=False):
+    def __init__(self, build_dir, stdout=False):
         self.tenant_token = "..."
         self.proc = None
         self.stdout = stdout
@@ -71,7 +70,7 @@ class NativeSim:
 
         create_header_file()
 
-        self.build_dir = tempfile.mkdtemp()
+        self.build_dir = build_dir
 
     def set_host(self, host="https://docker.mender.io"):
         self.server_host = host
@@ -84,6 +83,7 @@ class NativeSim:
             extra_variables = []
         if compile:
             variables = [
+                "-DCONFIG_COVERAGE=y",
                 "-DBUILD_INTEGRATION_TESTS=ON",
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
                 f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
