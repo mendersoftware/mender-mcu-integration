@@ -131,7 +131,7 @@ west flash &&  minicom -D /dev/ttyUSB1 -b 115200 -w
 
 To build the reference project for ESP32-Ethernet-Kit, execute:
 ```
-west build -b esp32s3_devkitc/esp32s3/procpu mender-mcu-integration -- -DEXTRA_CONF_FILE=overlay-wifi.conf
+west build -b esp32s3_devkitc/esp32s3/procpu mender-mcu-integration
 ```
 
 Flash it now to the board and read the serial line with something like:
