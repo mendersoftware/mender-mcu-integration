@@ -33,7 +33,7 @@ def teardown():
         os.remove(helpers.get_header_file())
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def check_variables():
     missing_vars = []
     for var in ("TEST_DEVICE_ID", "TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
@@ -43,7 +43,7 @@ def check_variables():
         pytest.fail(f"Failed to set {', '.join(missing_vars)}")
 
 
-def test_deployment_abort(teardown, server, check_variables):
+def test_deployment_abort(teardown, server, get_build_dir):
 
     """
     Sample test to demonstrate use of framework
@@ -65,7 +65,7 @@ def test_deployment_abort(teardown, server, check_variables):
     """
     helpers.set_callback(definitions.UM_DOWNLOAD_CALLBACK, download_body)
 
-    device = NativeSim(stdout=True)
+    device = NativeSim(get_build_dir, stdout=True)
     # Set host and tenant in the device
     device.set_host("https://hosted.mender.io")
 
@@ -89,6 +89,8 @@ def test_deployment_abort(teardown, server, check_variables):
             break
 
     if not device.status.is_aborted(timeout=60):
+        device.stop()
         pytest.fail("Deployment did not abort")
 
+    device.stop()
     logger.info("Deployment aborted")

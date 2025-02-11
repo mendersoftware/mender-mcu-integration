@@ -13,11 +13,16 @@
 #    limitations under the License.
 
 import os
-from os import path
-
 import sys
 import logging
+import tempfile
+import subprocess
 import pytest
+
+from helpers import THIS_DIR
+
+from os import path
+from pathlib import Path
 
 sys.path += [path.join(path.dirname(__file__), "mender_server/")]
 sys.path += [
@@ -61,3 +66,55 @@ def setup_user():
 def server(setup_user, request):
     host_url = request.config.getoption("--host")
     return Server(auth_token=setup_user, host=host_url)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def get_build_dir():
+    return tempfile.mkdtemp()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def get_coverage(request, get_build_dir):
+    yield
+    test_name = request.node.name
+    command = [
+        "lcov",
+        "--capture",
+        "--directory",
+        path.join(get_build_dir, "modules/mender-mcu"),
+        "--output-file",
+        path.join(THIS_DIR, f"{test_name}.info"),
+        "--rc",
+        "lcov_branch_coverage=1",
+    ]
+    exclude = ["--exclude", "*/modules/crypto/*", "--exclude", "*/zephyr/include/*"]
+    command.extend(exclude)
+
+    logger.info(f"Generating coverage for {test_name}")
+    try:
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError as err:
+        pytest.fail(err.stderr)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def aggregate_coverage():
+    yield
+    covfiles = Path(THIS_DIR).rglob("test*.info")
+    files = [file for file in covfiles if file.is_file()]
+    command = ["lcov"]
+    for file in files:
+        command.extend(["--add-tracefile", str(file)])
+    command.extend(["-o", "coverage.lcov"])
+
+    logger.info("Aggregating coverage reports")
+    try:
+        subprocess.check_call(command)
+    except subprocess.CalledProcessError as err:
+        pytest.fail(err.stderr)
+
+    for file in files:
+        if path.exists(file):
+            os.remove(file)
+        else:
+            pytest.fail()
