@@ -24,7 +24,6 @@ variables:
             esp32_ethernet_kit/esp32/procpu,
             esp32s3_devkitc/esp32s3/procpu,
             olimex_esp32_evb/esp32/procpu,
-            mr_canhubk3,
             native_sim
           ]
 
