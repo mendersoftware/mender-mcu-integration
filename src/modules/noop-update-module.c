@@ -12,10 +12,10 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "mender-client.h"
-#include "mender-log.h"
-#include "mender-utils.h"
-#include "mender-update-module.h"
+#include <mender/client.h>
+#include <mender/log.h>
+#include <mender/utils.h>
+#include <mender/update-module.h>
 
 static mender_err_t noop_update_module_download(mender_update_state_t state, mender_update_state_data_t callback_data);
 

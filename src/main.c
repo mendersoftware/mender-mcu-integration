@@ -21,12 +21,12 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
 
-#include "mender-client.h"
-#include "mender-inventory.h"
-#include "mender-flash.h"
+#include <mender/client.h>
+#include <mender/inventory.h>
+#include <mender/flash.h>
 
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
-#include "mender-zephyr-image-update-module.h"
+#include <mender/zephyr-image-update-module.h>
 #endif /* CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_APP_NOOP_UPDATE_MODULE
