@@ -23,7 +23,6 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 
 #include <mender/client.h>
 #include <mender/inventory.h>
-#include <mender/flash.h>
 
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
 #include <mender/zephyr-image-update-module.h>
