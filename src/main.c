@@ -45,7 +45,7 @@ network_release_cb(void) {
 }
 
 static mender_err_t
-deployment_status_cb(mender_deployment_status_t status, char *desc) {
+deployment_status_cb(mender_deployment_status_t status, const char *desc) {
     LOG_DBG("deployment_status_cb: %s", desc);
     return MENDER_OK;
 }
