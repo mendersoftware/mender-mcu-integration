@@ -12,6 +12,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+#include <mender/alloc.h>
 #include <mender/client.h>
 #include <mender/log.h>
 #include <mender/utils.h>
@@ -31,7 +32,7 @@ noop_update_module_register(void) {
     mender_update_module_t *noop_update_module;
 
     /* Register the zephyr-image update module */
-    if (NULL == (noop_update_module = calloc(1, sizeof(mender_update_module_t)))) {
+    if (NULL == (noop_update_module = mender_calloc(1, sizeof(mender_update_module_t)))) {
         mender_log_error("Unable to allocate memory for the 'zephyr-image' update module");
         return MENDER_FAIL;
     }
