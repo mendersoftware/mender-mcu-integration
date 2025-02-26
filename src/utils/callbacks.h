@@ -12,7 +12,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "mender-client.h"
+#include <mender/client.h>
 
 #ifndef __MENDER_CALLBACKS_H__
 #define __MENDER_CALLBACKS_H__

@@ -19,7 +19,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "mender-utils.h"
+#include <mender/utils.h>
 
 mender_err_t test_update_module_register(void);
 

@@ -12,16 +12,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#include "mender-client.h"
-#include "mender-log.h"
-#include "mender-utils.h"
-#include "mender-update-module.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <mender/alloc.h>
+#include <mender/client.h>
+#include <mender/log.h>
+#include <mender/utils.h>
+#include <mender/update-module.h>
 
-#include "zephyr/kernel.h"
-
-#include "mender-utils.h"
 
 #include <zephyr/kernel.h>
 
