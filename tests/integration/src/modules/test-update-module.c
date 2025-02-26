@@ -52,7 +52,7 @@ test_update_module_register(void) {
     mender_update_module_t *test_update_module;
 
     /* Register the zephyr-image update module */
-    if (NULL == (test_update_module = calloc(1, sizeof(mender_update_module_t)))) {
+    if (NULL == (test_update_module = mender_calloc(1, sizeof(mender_update_module_t)))) {
         mender_log_error("Unable to allocate memory for the 'test-update' update module");
         return MENDER_FAIL;
     }
