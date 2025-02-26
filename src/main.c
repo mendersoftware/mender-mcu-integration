@@ -22,6 +22,7 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include <zephyr/kernel.h>
 #include <zephyr/sys/reboot.h>
 
+#include <mender/utils.h>
 #include <mender/client.h>
 #include <mender/inventory.h>
 
