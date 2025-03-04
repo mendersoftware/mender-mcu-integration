@@ -14,7 +14,6 @@ Requirements from zephyr
 
 ### Running tests
 To run the current tests, you will need to export
- - TEST_DEVICE_ID
  - TEST_TENANT_TOKEN
  - TEST_AUTH_TOKEN
 

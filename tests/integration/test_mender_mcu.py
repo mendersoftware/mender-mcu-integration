@@ -26,7 +26,7 @@ from device import NativeSim
 import definitions
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True, scope="function")
 def teardown():
     yield
     if os.path.exists(helpers.get_header_file()):
@@ -36,21 +36,19 @@ def teardown():
 @pytest.fixture(scope="session", autouse=True)
 def check_variables():
     missing_vars = []
-    for var in ("TEST_DEVICE_ID", "TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
+    for var in ("TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
         if var not in os.environ:
             missing_vars.append(var)
     if missing_vars:
         pytest.fail(f"Failed to set {', '.join(missing_vars)}")
 
 
-def test_deployment_abort(teardown, server, get_build_dir):
+def test_deployment_abort(server, get_build_dir):
 
     """
     Sample test to demonstrate use of framework
     """
 
-    # Temporary workaround for the PoC
-    device_id = os.getenv("TEST_DEVICE_ID")
     artifact_name = server.upload_artifact(
         "test-artifact", device_types=("native_sim/native",)
     )
@@ -74,10 +72,14 @@ def test_deployment_abort(teardown, server, get_build_dir):
 
     # Start device
     device.start(pristine=True)
+    server.accept_device()
     device.status.is_authenticated(timeout=60)
 
+    artifact_name = server.upload_artifact(
+        "test-artifact", device_types=("native_sim/native",)
+    )
     # Create deployment
-    server.create_deployment(artifact_name, device_id, True)
+    server.create_deployment(artifact_name, server.device_id, True)
 
     # Wait for download callback to sleep so we can abort
     timeout = 60
