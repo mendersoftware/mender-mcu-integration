@@ -14,6 +14,7 @@
 
 import os
 import sys
+import shutil
 import logging
 import tempfile
 import subprocess
@@ -95,6 +96,7 @@ def get_coverage(request, get_build_dir):
         subprocess.check_call(command)
     except subprocess.CalledProcessError as err:
         pytest.fail(err.stderr)
+    shutil.rmtree(get_build_dir)
 
 
 @pytest.fixture(scope="session", autouse=True)
