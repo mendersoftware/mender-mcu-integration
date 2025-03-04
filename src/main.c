@@ -72,6 +72,14 @@ get_identity_cb(const mender_identity_t **identity) {
     return MENDER_FAIL;
 }
 
+static mender_err_t
+persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
+    static mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "var" } };
+    *keystore = inventory;
+    *keystore_len = 2;
+    return MENDER_OK;
+}
+
 int
 main(void) {
     printf("Hello World! %s\n", CONFIG_BOARD_TARGET);
@@ -118,12 +126,11 @@ main(void) {
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
 #ifdef CONFIG_MENDER_CLIENT_INVENTORY
-    mender_keystore_t inventory[] = { { .name = "demo", .value = "demo" }, { .name = "foo", .value = "bar" }, { .name = NULL, .value = NULL } };
-    if (MENDER_OK != mender_inventory_set(inventory)) {
-        LOG_ERR("Failed to set the inventory");
+    if (MENDER_OK != mender_inventory_add_callback(persistent_inventory_cb, true)) {
+        LOG_ERR("Failed to add inventory callback");
         goto END;
     }
-    LOG_INF("Mender inventory set");
+    LOG_INF("Mender inventory callback added");
 #endif /* CONFIG_MENDER_CLIENT_INVENTORY */
 
     /* Finally activate mender client */
