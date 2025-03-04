@@ -20,6 +20,7 @@ import tempfile
 import subprocess
 import pytest
 
+import helpers
 from helpers import THIS_DIR
 
 from os import path
@@ -40,6 +41,16 @@ logging.getLogger().setLevel(logging.DEBUG)
 collect_ignore = ["mender_server"]
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def check_variables():
+    missing_vars = []
+    for var in ("TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
+        if var not in os.environ:
+            missing_vars.append(var)
+    if missing_vars:
+        pytest.fail(f"Failed to set {', '.join(missing_vars)}")
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -72,6 +83,13 @@ def server(setup_user, request):
 @pytest.fixture(scope="function", autouse=True)
 def get_build_dir():
     return tempfile.mkdtemp()
+
+
+@pytest.fixture(autouse=True, scope="function")
+def teardown():
+    yield
+    if os.path.exists(helpers.get_header_file()):
+        os.remove(helpers.get_header_file())
 
 
 @pytest.fixture(scope="function", autouse=True)

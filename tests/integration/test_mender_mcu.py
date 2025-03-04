@@ -26,23 +26,6 @@ from device import NativeSim
 import definitions
 
 
-@pytest.fixture(autouse=True, scope="function")
-def teardown():
-    yield
-    if os.path.exists(helpers.get_header_file()):
-        os.remove(helpers.get_header_file())
-
-
-@pytest.fixture(scope="session", autouse=True)
-def check_variables():
-    missing_vars = []
-    for var in ("TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
-        if var not in os.environ:
-            missing_vars.append(var)
-    if missing_vars:
-        pytest.fail(f"Failed to set {', '.join(missing_vars)}")
-
-
 def test_deployment_abort(server, get_build_dir):
 
     """
