@@ -52,7 +52,7 @@ mender_network_release_cb(void) {
 }
 
 MENDER_FUNC_WEAK mender_err_t
-mender_deployment_status_cb(mender_deployment_status_t status, char *desc) {
+mender_deployment_status_cb(mender_deployment_status_t status, const char *desc) {
     LOG_DBG("deployment_status_cb: %s", desc);
     return MENDER_OK;
 }

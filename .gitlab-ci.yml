@@ -8,6 +8,7 @@ include:
 stages:
   - build
   - test
+  - test:integration
   - publish
 
 variables:
@@ -16,6 +17,7 @@ variables:
   DOCKER_VERSION:
     value: "27.3"
     description: "Version of docker to use in pipelines"
+  CONTAINER_TAG: "west-workspace"
 
 .boards-matrix:
   parallel:
@@ -32,8 +34,6 @@ variables:
   tags:
     - hetzner-amd-beefy
   stage: build
-  variables:
-    CONTAINER_TAG: "west-workspace"
 
 build:workspace:
   extends: .build-template
@@ -78,6 +78,24 @@ build:board:
     - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
   parallel: !reference [.boards-matrix, parallel]
 
+test:integration:
+  stage: test:integration
+  tags:
+    - zephyr-hetzner
+  extends: .build-template
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+  image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
+  needs:
+    - job: build:workspace
+      optional: true
+  script:
+    - cd /zephyr-workspace-cache
+    - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
+    - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
+    - cd modules/mender-mcu && git fetch mender ${MENDER_MCU_REVISION}
+    - git checkout FETCH_HEAD && cd -
+    - west build --board native_sim ${CI_PROJECT_DIR}
 
 publish:tests:
   stage: publish
