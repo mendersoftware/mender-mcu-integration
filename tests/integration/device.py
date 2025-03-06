@@ -138,5 +138,9 @@ class NativeSim:
         self.proc.wait()
         logger.info("Stopped device")
 
+    def restart(self):
+        self.stop()
+        self.start(compile=False)
+
     def clean_build(self):
         shutil.rmtree(self.build_dir)

@@ -53,7 +53,8 @@ def set_define(define_name, definition):
 def stdout(device):
     line = device.proc.stdout.readline()
     if device.stdout:
-        logger.info(line)
+        if line:
+            logger.info(line)
     return line
 
 
