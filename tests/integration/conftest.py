@@ -45,12 +45,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="session", autouse=True)
 def check_variables():
-    missing_vars = []
-    for var in ("TEST_TENANT_TOKEN", "TEST_AUTH_TOKEN"):
-        if var not in os.environ:
-            missing_vars.append(var)
-    if missing_vars:
-        pytest.fail(f"Failed to set {', '.join(missing_vars)}")
+    if "TEST_AUTH_TOKEN" not in os.environ:
+        pytest.fail(f"Failed to set TEST_AUTH_TOKEN")
 
 
 @pytest.fixture(scope="function", autouse=True)

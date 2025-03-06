@@ -51,7 +51,7 @@ def test_deployment_abort(server, get_build_dir):
     device.set_host("https://hosted.mender.io")
 
     # Temporary workaround for the PoC
-    device.set_tenant(os.getenv("TEST_TENANT_TOKEN"))
+    device.set_tenant(server.get_tenant_token())
 
     # Start device
     device.start(pristine=True)
