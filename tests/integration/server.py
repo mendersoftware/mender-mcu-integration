@@ -27,7 +27,7 @@ from mender_server.backend.tests.integration.testutils.api.client import ApiClie
 from mender_server.backend.tests.integration.testutils.api import deployments
 
 from mender_server.backend.tests.integration.testutils.api import (
-    useradm,
+    tenantadm,
     deviceauth,
 )
 
@@ -41,6 +41,7 @@ class Server:
 
         self.api_dev_deploy = ApiClient(deployments.URL_MGMT, self.host)
         self.devauthm = ApiClient(deviceauth.URL_MGMT, host=self.host)
+        self.tenantadm = ApiClient(tenantadm.URL_MGMT, host=self.host)
 
     def get_pending_devices(self):
         # Get pending devices
@@ -61,6 +62,13 @@ class Server:
                 self.device_id = device["id"]
                 return True
         return False
+
+    def get_tenant_token(self):
+        r = self.tenantadm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
+            "GET", tenantadm.URL_MGMT_THIS_TENANT
+        )
+        assert r.status_code == 200
+        return r.json()["tenant_token"]
 
     def accept_device(self, mac_address="11:11:22:33:55:88"):
         if self.is_accepted(mac_address):
