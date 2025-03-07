@@ -13,12 +13,15 @@
 #    limitations under the License.
 
 import os
+import re
 import sys
+import shutil
 import logging
 import tempfile
 import subprocess
 import pytest
 
+import helpers
 from helpers import THIS_DIR
 
 from os import path
@@ -39,6 +42,12 @@ logging.getLogger().setLevel(logging.DEBUG)
 collect_ignore = ["mender_server"]
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def check_variables():
+    if "TEST_AUTH_TOKEN" not in os.environ:
+        pytest.fail(f"Failed to set TEST_AUTH_TOKEN")
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -73,17 +82,24 @@ def get_build_dir():
     return tempfile.mkdtemp()
 
 
+@pytest.fixture(autouse=True, scope="function")
+def teardown():
+    yield
+    if os.path.exists(helpers.get_header_file()):
+        os.remove(helpers.get_header_file())
+
+
 @pytest.fixture(scope="function", autouse=True)
 def get_coverage(request, get_build_dir):
     yield
-    test_name = request.node.name
+    test_name = f"{re.sub(r'[\[\]]', '_', request.node.name)}.info"
     command = [
         "lcov",
         "--capture",
         "--directory",
         path.join(get_build_dir, "modules/mender-mcu"),
         "--output-file",
-        path.join(THIS_DIR, f"{test_name}.info"),
+        path.join(THIS_DIR, test_name),
         "--rc",
         "lcov_branch_coverage=1",
     ]
@@ -95,6 +111,7 @@ def get_coverage(request, get_build_dir):
         subprocess.check_call(command)
     except subprocess.CalledProcessError as err:
         pytest.fail(err.stderr)
+    shutil.rmtree(get_build_dir)
 
 
 @pytest.fixture(scope="session", autouse=True)

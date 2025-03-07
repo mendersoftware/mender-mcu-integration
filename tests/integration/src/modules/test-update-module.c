@@ -39,6 +39,8 @@ static mender_err_t test_update_module_failure(mender_update_state_t state, mend
 
 static mender_err_t test_update_module_rollback_reboot(mender_update_state_t state, mender_update_state_data_t callback_data);
 
+static mender_err_t test_update_module_rollback_verify_reboot(mender_update_state_t state, mender_update_state_data_t callback_data);
+
 #ifndef UM_REQUIRES_REBOOT
 #define UM_REQUIRES_REBOOT false
 #endif
@@ -64,6 +66,7 @@ test_update_module_register(void) {
     test_update_module->callbacks[MENDER_UPDATE_STATE_ROLLBACK]        = &test_update_module_rollback;
     test_update_module->callbacks[MENDER_UPDATE_STATE_FAILURE]         = &test_update_module_failure;
     test_update_module->callbacks[MENDER_UPDATE_STATE_ROLLBACK_REBOOT] = &test_update_module_rollback_reboot;
+    test_update_module->callbacks[MENDER_UPDATE_STATE_ROLLBACK_VERIFY_REBOOT] = &test_update_module_rollback_verify_reboot;
     test_update_module->artifact_type                                  = "test-update";
     test_update_module->requires_reboot                                = UM_REQUIRES_REBOOT;
     test_update_module->supports_rollback                              = UM_SUPPORTS_ROLLBACK;
@@ -157,6 +160,15 @@ static mender_err_t test_update_module_rollback_reboot(mender_update_state_t sta
     /* Macro defined by test */
 #ifdef UM_ROLLBACK_REBOOT_CALLBACK
     UM_ROLLBACK_REBOOT_CALLBACK();
+#endif
+    return MENDER_OK;
+}
+
+static mender_err_t test_update_module_rollback_verify_reboot(mender_update_state_t state, mender_update_state_data_t callback_data) {
+
+    /* Macro defined by test */
+#ifdef UM_ROLLBACK_VERIFY_REBOOT_CALLBACK
+    UM_ROLLBACK_VERIFY_REBOOT_CALLBACK();
 #endif
     return MENDER_OK;
 }

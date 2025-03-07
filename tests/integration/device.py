@@ -109,7 +109,8 @@ class NativeSim:
             )
 
             try:
-                subprocess.check_call(command)
+                # Don't log stdout - as it contains the tenant token
+                subprocess.check_call(command, stdout=subprocess.DEVNULL)
             except subprocess.CalledProcessError as result:
                 logger.error(result.stderr)
                 command_output = " ".join(command)
@@ -137,6 +138,10 @@ class NativeSim:
         self.proc.terminate()
         self.proc.wait()
         logger.info("Stopped device")
+
+    def restart(self):
+        self.stop()
+        self.start(compile=False)
 
     def clean_build(self):
         shutil.rmtree(self.build_dir)
