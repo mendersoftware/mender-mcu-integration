@@ -90,7 +90,6 @@ publish:tests:
   stage: publish
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.11
   rules:
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
     # TODO: remove when tests run in pipeline
     # We don't have anything to publish yet
     - when: never
