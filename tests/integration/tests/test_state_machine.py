@@ -290,7 +290,7 @@ class TestStateMachineTransitions:
 
             # Start device
             extra_variables = [
-                "-DCONFIG_MENDER_HEAP_SIZE=10",
+                "-DCONFIG_MENDER_HEAP_SIZE=12",
                 "-DCONFIG_MENDER_MAX_STATE_DATA_STORE_COUNT=12",
                 "-DCONFIG_LOG_BACKEND_SHOW_COLOR=n",
             ]
@@ -333,7 +333,7 @@ class TestStateMachineTransitions:
                 elif "Waiting for a reboot" in line:
                     device.restart()
 
-                elif "Entering state" in line:
+                elif "Entering state" in line or "Resuming from state" in line:
                     state = line.split()[-1]
                     assert state
                     traversed_states.append(state)

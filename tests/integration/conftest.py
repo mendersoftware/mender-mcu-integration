@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 import os
+import re
 import sys
 import shutil
 import logging
@@ -91,14 +92,14 @@ def teardown():
 @pytest.fixture(scope="function", autouse=True)
 def get_coverage(request, get_build_dir):
     yield
-    test_name = request.node.name
+    test_name = f"{re.sub(r'[\[\]]', '_', request.node.name)}.info"
     command = [
         "lcov",
         "--capture",
         "--directory",
         path.join(get_build_dir, "modules/mender-mcu"),
         "--output-file",
-        path.join(THIS_DIR, f"{test_name}.info"),
+        path.join(THIS_DIR, test_name),
         "--rc",
         "lcov_branch_coverage=1",
     ]
