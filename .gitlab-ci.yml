@@ -10,8 +10,15 @@ stages:
   - test
 
 variables:
-  MENDER_MCU_REVISION: main
-  IMAGE_VERSION: main
+  MENDER_MCU_REVISION:
+    value: "main"
+    description: "Mender MCU Revision - use commit SHA"
+  IMAGE_VERSION:
+    value: "main"
+    description: |
+      Version of the west-workspace image to use.
+      Follows gitlab branch of mender-mcu-integration.
+      Revision updated automatically in jobs that re-build the workspace.
   DOCKER_VERSION:
     value: "27.3"
     description: "Version of docker to use in pipelines"
