@@ -26,6 +26,15 @@ if(CONFIG_MENDER_APP_NOOP_UPDATE_MODULE MATCHES "y")
     target_sources(app PRIVATE src/modules/noop-update-module.c)
 endif()
 
+option(BUILD_INTEGRATION_TESTS "Enable integration tests" OFF)
+
+if(BUILD_INTEGRATION_TESTS)
+    target_compile_definitions(app PRIVATE BUILD_INTEGRATION_TESTS)
+    target_include_directories(app PUBLIC tests/integration/src)
+    target_sources(app PRIVATE tests/integration/src/modules/test-update-module.c)
+    target_sources(app PRIVATE tests/integration/src/callbacks.c)
+endif()
+
 # Amazon Root CA 1 certificate from https://www.amazontrust.com/repository
 # Used as primary CA certificate for Hosted Mender
 generate_inc_file_for_target(app
