@@ -290,7 +290,7 @@ class TestStateMachineTransitions:
 
             # Start device
             extra_variables = [
-                "-DCONFIG_MENDER_HEAP_SIZE=10",
+                "-DCONFIG_MENDER_HEAP_SIZE=12",
                 "-DCONFIG_MENDER_MAX_STATE_DATA_STORE_COUNT=12",
                 "-DCONFIG_LOG_BACKEND_SHOW_COLOR=n",
             ]
