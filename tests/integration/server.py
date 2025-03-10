@@ -71,8 +71,7 @@ class Server:
         return r.json()["tenant_token"]
 
     def accept_device(self, mac_address="11:11:22:33:55:88"):
-        if self.is_accepted(mac_address):
-            return
+        self.is_accepted(mac_address)
         pending_devices = self.get_pending_devices()
         timeout = 10
         while not pending_devices and timeout > 0:
