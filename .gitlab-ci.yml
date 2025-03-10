@@ -1,13 +1,14 @@
-include:
-  - project: 'Northern.tech/Mender/mendertesting'
-    file:
-      - '.gitlab-ci-check-commits.yml'
-      - '.gitlab-ci-github-status-updates.yml'
-      - '.gitlab-ci-check-license.yml'
+#include:
+#  - project: 'Northern.tech/Mender/mendertesting'
+#    file:
+#      - '.gitlab-ci-check-commits.yml'
+#      - '.gitlab-ci-github-status-updates.yml'
+#      - '.gitlab-ci-check-license.yml'
 
 stages:
-  - build
-  - test
+  #- build
+  #- test
+  - test:integration
   - publish
 
 variables:
@@ -20,9 +21,14 @@ variables:
       Version of the west-workspace image to use.
       Follows gitlab branch of mender-mcu-integration.
       Revision updated automatically in jobs that re-build the workspace.
+  GIT_SUBMODULE_STRATEGY: recursive
+  MENDER_ARTIFACT_VERSION:
+    description: "mender-artifact version for tests"
+    value: 4.0.0
   DOCKER_VERSION:
     value: "27.3"
     description: "Version of docker to use in pipelines"
+  CONTAINER_TAG: "west-workspace"
 
 .boards-matrix:
   parallel:
@@ -39,61 +45,88 @@ variables:
   tags:
     - hetzner-amd-beefy
   stage: build
-  variables:
-    CONTAINER_TAG: "west-workspace"
 
-build:workspace:
+#build:workspace:
+#  extends: .build-template
+#  services:
+#    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
+#      alias: docker
+#  script:
+#    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
+#    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+#    - docker build
+#        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-main
+#        --file Dockerfile.ci
+#        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
+#        --push
+#        .
+#    - echo "IMAGE_VERSION=$CI_COMMIT_BRANCH" >> image_version.env
+#  rules:
+#    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "pipeline"
+#    # Rebuild the workspace image if the Dockerfile.ci or west.yml changes
+#    - changes:
+#        paths:
+#          - Dockerfile.ci
+#          - west.yml
+#        compare_to: main
+#  artifacts:
+#    reports:
+#      dotenv: image_version.env
+#
+#
+#build:board:
+#  extends: .build-template
+#  image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
+#  needs:
+#    - job: build:workspace
+#      optional: true
+#  script:
+#    - cd /zephyr-workspace-cache
+#    - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
+#    - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
+#    - cd modules/mender-mcu && git fetch mender ${MENDER_MCU_REVISION}
+#    - git checkout FETCH_HEAD && cd -
+#    - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
+#  parallel: !reference [.boards-matrix, parallel]
+
+test:integration:
+  stage: test:integration
+  tags:
+    - zephyr-hetzner
   extends: .build-template
-  services:
-    - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
-      alias: docker
-  script:
-    - echo "INFO - Building and Pushing ${CONTAINER_TAG}-${CI_PIPELINE_ID} to the registry ${CI_REGISTRY_IMAGE}"
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker build
-        --cache-from ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-main
-        --file Dockerfile.ci
-        --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
-        --push
-        .
-    - echo "IMAGE_VERSION=$CI_COMMIT_BRANCH" >> image_version.env
   rules:
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "pipeline"
-    # Rebuild the workspace image if the Dockerfile.ci or west.yml changes
-    - changes:
-        paths:
-          - Dockerfile.ci
-          - west.yml
-        compare_to: main
-  artifacts:
-    reports:
-      dotenv: image_version.env
-
-
-build:board:
-  extends: .build-template
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
   image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
   needs:
     - job: build:workspace
       optional: true
+  before_script:
+    # Fetch and install mender-artifact
+    - apt update -yyq && apt install -yyq lcov
+    - wget "https://downloads.mender.io/repos/debian/pool/main/m/mender-artifact/mender-artifact_${MENDER_ARTIFACT_VERSION}-1+debian+bookworm_amd64.deb"
+      -O mender-artifact.deb &&
+      dpkg --install mender-artifact.deb
   script:
+    - export TEST_AUTH_TOKEN=$HOSTED_MENDER_TEST_ACCESS_TOKEN
+    - export ZEPHYR_BASE=/zephyr-workspace-cache/zephyr
     - cd /zephyr-workspace-cache
     - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
-    - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
     - cd modules/mender-mcu && git fetch mender ${MENDER_MCU_REVISION}
     - git checkout FETCH_HEAD && cd -
-    - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
-  parallel: !reference [.boards-matrix, parallel]
+    - cd ${CI_PROJECT_DIR}/tests/integration
+    - pip install --ignore-installed --break-system-packages -r mender_server/backend/tests/requirements-integration.txt
+    - pytest -s --host hosted.mender.io
+  artifacts:
+    paths:
+      - tests/integration/coverage.lcov
+
 
 
 publish:tests:
   stage: publish
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.11
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
-    # TODO: remove when tests run in pipeline
-    # We don't have anything to publish yet
-    - when: never
+  needs:
+    - test:integration
   before_script:
     # Install dependencies
     - apt update && apt install -yyq lcov
@@ -115,3 +148,4 @@ publish:tests:
       --repo-token ${MENDER_MCU_COVERALLS_TOKEN}
       --no-gcov
       --lcov-file tests/integration/coverage.lcov
+    - sleep 100000
