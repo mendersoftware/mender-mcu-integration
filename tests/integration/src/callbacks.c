@@ -35,7 +35,7 @@ mender_network_release_cb(void) {
 }
 
 mender_err_t
-mender_deployment_status_cb(mender_deployment_status_t status, char *desc) {
+mender_deployment_status_cb(mender_deployment_status_t status, const char *desc) {
     LOG_DBG("deployment_status_cb: %s", desc);
 #ifdef DEPLOYMENT_STATUS_CALLBACK
     DEPLOYMENT_STATUS_CALLBACK();
