@@ -41,7 +41,7 @@ mender_err_t mender_network_release_cb(void);
  * @brief Callback to post the deployment status.
  * @return return MENDER_OK on success, MENDER_FAIL on error
  */
-mender_err_t mender_deployment_status_cb(mender_deployment_status_t status, char *desc);
+mender_err_t mender_deployment_status_cb(mender_deployment_status_t status, const char *desc);
 
 /**
  * @brief Callback to trigger a device reset, e.g. after a
