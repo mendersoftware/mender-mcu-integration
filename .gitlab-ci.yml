@@ -8,6 +8,7 @@ include:
 stages:
   - build
   - test
+  - test:integration
   - publish
 
 variables:
@@ -20,9 +21,13 @@ variables:
       Version of the west-workspace image to use.
       Follows gitlab branch of mender-mcu-integration.
       Revision updated automatically in jobs that re-build the workspace.
+  MENDER_ARTIFACT_VERSION:
+    description: "mender-artifact version for tests"
+    value: 4.0.0
   DOCKER_VERSION:
     value: "27.3"
     description: "Version of docker to use in pipelines"
+  CONTAINER_TAG: "west-workspace"
 
 .boards-matrix:
   parallel:
@@ -39,8 +44,6 @@ variables:
   tags:
     - hetzner-amd-beefy
   stage: build
-  variables:
-    CONTAINER_TAG: "west-workspace"
 
 build:workspace:
   extends: .build-template
@@ -85,32 +88,56 @@ build:board:
     - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
   parallel: !reference [.boards-matrix, parallel]
 
+test:integration:
+  extends: .build-template
+  image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
+  stage: test:integration
+  tags:
+    - zephyr-hetzner
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    TEST_AUTH_TOKEN: $HOSTED_MENDER_TEST_ACCESS_TOKEN
+    ZEPHYR_BASE: "/zephyr-workspace-cache/zephyr"
+  needs:
+    - job: build:workspace
+      optional: true
+  before_script:
+    # Fetch and install mender-artifact
+    - apt update -yyq && apt install -yyq lcov
+    - wget "https://downloads.mender.io/repos/debian/pool/main/m/mender-artifact/mender-artifact_${MENDER_ARTIFACT_VERSION}-1+debian+bookworm_amd64.deb"
+      -O mender-artifact.deb &&
+      dpkg --install mender-artifact.deb
+  script:
+    - cd /zephyr-workspace-cache
+    - west update --narrow -o=--depth=1 --path-cache /zephyr-workspace-cache
+    - cd modules/mender-mcu && git fetch mender ${MENDER_MCU_REVISION}
+    - git checkout FETCH_HEAD && cd -
+    - cd ${CI_PROJECT_DIR}/tests/integration
+    - pip install --ignore-installed --break-system-packages -r mender_server/backend/tests/requirements-integration.txt
+    - pytest -v --host hosted.mender.io -k test_state_machine[success_no_reboot]
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+  artifacts:
+    paths:
+      - tests/integration/coverage.lcov
 
 publish:tests:
   stage: publish
   image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/python:3.11
-  rules:
-    # TODO: remove when tests run in pipeline
-    # We don't have anything to publish yet
-    - when: never
+  dependencies:
+    - test:integration
   before_script:
-    # Install dependencies
-    - apt update && apt install -yyq lcov
-    - pip install cpp-coveralls pyyaml
-
-    # eddyxu/cpp-coveralls appears dead, but there doesn't seem to be an
-    # alternative. Use this patch from someone who attempted to fix it. An
-    # alternative to this is to use pyyaml<6, but it's better to use just one
-    # old component than two.
-    - curl -f https://github.com/eddyxu/cpp-coveralls/commit/067c837c04e039e8c70aa53bceda1cded6751408.patch | patch -f /usr/local/lib/python3.11/site-packages/cpp_coveralls/__init__.py
-
-    # Set "TRAVIS_*" variables based on GitLab ones
-    - export TRAVIS_BRANCH=$PARENT_MENDER_MCU_COMMIT_BRANCH
-    - export TRAVIS_JOB_ID=$PARENT_MENDER_MCU_PIPELINE_ID
-
+    # https://github.com/coverallsapp/coverage-reporter
+    - wget -qO- https://coveralls.io/coveralls-linux.tar.gz | tar xz -C /usr/local/bin
+  variables:
+    COVERALLS_PARALLEL: true
+    COVERALLS_FLAG_NAME: "integration-tests"
+    COVERALLS_SERVICE_NAME: "gitlab-ci"
+    COVERALLS_GIT_COMMIT: $MENDER_MCU_REVISION
+    COVERALLS_REPO_TOKEN: $MENDER_MCU_COVERALLS_TOKEN
   script:
-    - 'echo "service_name: gitlab-ci" > .coveralls.yml'
-    - cpp-coveralls
-      --repo-token ${MENDER_MCU_COVERALLS_TOKEN}
-      --no-gcov
-      --lcov-file tests/integration/coverage.lcov
+    #  replace the path in the coverage file
+    - sed -i "s/\/zephyr-workspace-cache\/modules\/mender-mcu\///g" tests/integration/coverage.lcov
+    - wget -qO- https://github.com/mendersoftware/mender-mcu/archive/${MENDER_MCU_REVISION}.tar.gz/ | tar xz
+    - cd mender-mcu-${MENDER_MCU_REVISION} && cp ../tests/integration/coverage.lcov .
+    - coveralls report --build-number $PARENT_MENDER_MCU_PIPELINE_ID
