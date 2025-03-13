@@ -333,7 +333,7 @@ class TestStateMachineTransitions:
                 elif "Waiting for a reboot" in line:
                     device.restart()
 
-                elif "Entering state" in line:
+                elif "Entering state" in line or "Resuming from state" in line:
                     state = line.split()[-1]
                     assert state
                     traversed_states.append(state)
