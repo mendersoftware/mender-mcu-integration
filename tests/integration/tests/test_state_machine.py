@@ -40,10 +40,11 @@ class TestStateMachineTransitions:
         "MENDER_UPDATE_STATE_FAILURE": definitions.UM_FAILURE_CALLBACK,
     }
 
-    TEST_SET = {
+    STATE_MACHINE_TEST_SET = {
         "success_no_reboot": {
             "Timeout": 120,
             "FailureInStates": [],
+            "RebootInState": [],
             "RequiresReboot": False,
             "SupportsRollback": False,
             "ExpectedSuccess": True,
@@ -60,6 +61,7 @@ class TestStateMachineTransitions:
         "success_reboot": {
             "Timeout": 120,
             "FailureInStates": [],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": True,
@@ -80,6 +82,7 @@ class TestStateMachineTransitions:
         "fail_verify_reboot": {
             "Timeout": 120,
             "FailureInStates": ["MENDER_UPDATE_STATE_VERIFY_REBOOT"],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -105,6 +108,7 @@ class TestStateMachineTransitions:
         "fail_commit": {
             "Timeout": 120,
             "FailureInStates": ["MENDER_UPDATE_STATE_COMMIT"],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -131,6 +135,7 @@ class TestStateMachineTransitions:
         "fail_commit_no_rollback": {
             "Timeout": 120,
             "FailureInStates": ["MENDER_UPDATE_STATE_COMMIT"],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": False,
             "ExpectedSuccess": False,
@@ -153,6 +158,7 @@ class TestStateMachineTransitions:
         "fail_download": {
             "Timeout": 120,
             "FailureInStates": ["MENDER_UPDATE_STATE_DOWNLOAD"],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -167,6 +173,7 @@ class TestStateMachineTransitions:
         "fail_install": {
             "Timeout": 120,
             "FailureInStates": ["MENDER_UPDATE_STATE_INSTALL"],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -186,6 +193,7 @@ class TestStateMachineTransitions:
                 "MENDER_UPDATE_STATE_VERIFY_REBOOT",
                 "MENDER_UPDATE_STATE_ROLLBACK_VERIFY_REBOOT",
             ],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -226,6 +234,7 @@ class TestStateMachineTransitions:
                 "MENDER_UPDATE_STATE_COMMIT",
                 "MENDER_UPDATE_STATE_ROLLBACK",
             ],
+            "RebootInState": [],
             "RequiresReboot": True,
             "SupportsRollback": True,
             "ExpectedSuccess": False,
@@ -248,6 +257,7 @@ class TestStateMachineTransitions:
         "noop_check_deployment": {
             "Timeout": 45,
             "FailureInStates": [],
+            "RebootInState": [],
             "RequiresReboot": False,
             "SupportsRollback": False,
             "ExpectedStateFlow": [
@@ -260,13 +270,64 @@ class TestStateMachineTransitions:
         },
     }
 
+    SPONTANEOUS_REBOOT_TEST_SET = {
+        "spontaneous_reboot_install": {
+            "Timeout": 120,
+            "RebootInState": "MENDER_UPDATE_STATE_INSTALL",
+            "RequiresReboot": True,
+            "SupportsRollback": True,
+            "ExpectedSuccess": False,
+            "FailureInStates": [],
+            "ExpectedStateFlow": [
+                "MENDER_CLIENT_STATE_OPERATIONAL",
+                "MENDER_UPDATE_STATE_DOWNLOAD",
+                "MENDER_UPDATE_STATE_INSTALL",  # reboot
+                "MENDER_CLIENT_STATE_INITIALIZATION",
+                "MENDER_UPDATE_STATE_INSTALL",
+                "MENDER_UPDATE_STATE_FAILURE",
+                "MENDER_UPDATE_STATE_CLEANUP",
+                "MENDER_UPDATE_STATE_END",
+                "MENDER_CLIENT_STATE_OPERATIONAL",
+            ],
+        },
+        "spontaneous_reboot_commit": {
+            "Timeout": 120,
+            "RebootInState": "MENDER_UPDATE_STATE_COMMIT",
+            "RequiresReboot": True,
+            "SupportsRollback": True,
+            "ExpectedSuccess": False,
+            "FailureInStates": [],
+            "ExpectedStateFlow": [
+                "MENDER_CLIENT_STATE_OPERATIONAL",
+                "MENDER_UPDATE_STATE_DOWNLOAD",
+                "MENDER_UPDATE_STATE_INSTALL",
+                "MENDER_UPDATE_STATE_REBOOT",
+                "MENDER_CLIENT_STATE_PENDING_REBOOT",
+                "MENDER_CLIENT_STATE_INITIALIZATION",
+                "MENDER_UPDATE_STATE_VERIFY_REBOOT",
+                "MENDER_UPDATE_STATE_COMMIT",  # reboot
+                "MENDER_CLIENT_STATE_INITIALIZATION",
+                "MENDER_UPDATE_STATE_COMMIT",
+                "MENDER_UPDATE_STATE_ROLLBACK",
+                "MENDER_UPDATE_STATE_ROLLBACK_REBOOT",
+                "MENDER_CLIENT_STATE_PENDING_REBOOT",
+                "MENDER_CLIENT_STATE_INITIALIZATION",
+                "MENDER_UPDATE_STATE_ROLLBACK_VERIFY_REBOOT",
+                "MENDER_UPDATE_STATE_FAILURE",
+                "MENDER_UPDATE_STATE_CLEANUP",
+                "MENDER_UPDATE_STATE_END",
+                "MENDER_CLIENT_STATE_OPERATIONAL",
+            ],
+        },
+    }
+
     FAILED_DEPLOYMENT = "deployment_status_cb: failure"
     SUCCESSFUL_DEPLOYMENT = "deployment_status_cb: success"
 
-    def do_test(self, server, get_build_dir, state_set_key):
+    def do_test(self, server, get_build_dir, test_state_set, state_set_key):
         device = NativeSim(get_build_dir, stdout=True)
 
-        state_set = self.TEST_SET[state_set_key]
+        state_set = test_state_set[state_set_key]
         successful_test = False
         traversed_states = []
 
@@ -304,6 +365,7 @@ class TestStateMachineTransitions:
 
             active_deployment = False
             state_machine_done = False
+            had_spontaneous_reboot = False
 
             start_time = time.time()
             while time.time() - start_time < state_set["Timeout"]:
@@ -336,6 +398,12 @@ class TestStateMachineTransitions:
                 elif "Entering state" in line or "Resuming from state" in line:
                     state = line.split()[-1]
                     assert state
+                    if (
+                        state_set["RebootInState"] == state
+                        and not had_spontaneous_reboot
+                    ):
+                        device.restart()
+                        had_spontaneous_reboot = True
                     traversed_states.append(state)
                     if "MENDER_UPDATE_STATE_END" == state:
                         state_machine_done = True
@@ -364,6 +432,10 @@ class TestStateMachineTransitions:
             server.abort_deployment()
             device.stop()
 
-    @pytest.mark.parametrize("state_set", TEST_SET.keys())
+    @pytest.mark.parametrize("state_set", STATE_MACHINE_TEST_SET.keys())
     def test_state_machine(self, server, get_build_dir, state_set):
-        self.do_test(server, get_build_dir, state_set)
+        self.do_test(server, get_build_dir, self.STATE_MACHINE_TEST_SET, state_set)
+
+    @pytest.mark.parametrize("state_set", SPONTANEOUS_REBOOT_TEST_SET.keys())
+    def test_spontaneous_reboot(self, server, get_build_dir, state_set):
+        self.do_test(server, get_build_dir, self.SPONTANEOUS_REBOOT_TEST_SET, state_set)
