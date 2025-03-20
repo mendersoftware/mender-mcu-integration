@@ -10,6 +10,13 @@ set(BOARD
     "Board for the Zephyr application"
 )
 
+set(SB_CONF_FILE
+    "sysbuild-mcuboot.conf"
+    CACHE
+    STRING
+    "Config for sysbuild"
+)
+
 find_package(Sysbuild REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(sysbuild LANGUAGES)
