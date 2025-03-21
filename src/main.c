@@ -79,6 +79,7 @@ mender_get_identity_cb(const mender_identity_t **identity) {
     return MENDER_FAIL;
 }
 
+#ifdef CONFIG_MENDER_CLIENT_INVENTORY
 static mender_err_t
 persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     static mender_keystore_t inventory[] = { { .name = "App", .value = "mender-mcu-integration" } };
@@ -86,6 +87,7 @@ persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     *keystore_len = 1;
     return MENDER_OK;
 }
+#endif
 
 int
 main(void) {
