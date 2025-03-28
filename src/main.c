@@ -79,7 +79,7 @@ mender_get_identity_cb(const mender_identity_t **identity) {
     return MENDER_FAIL;
 }
 
-#ifdef CONFIG_MENDER_CLIENT_INVENTORY
+#ifndef CONFIG_MENDER_CLIENT_INVENTORY_DISABLE
 static mender_err_t
 persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     static mender_keystore_t inventory[] = { { .name = "App", .value = "mender-mcu-integration" } };
@@ -87,7 +87,7 @@ persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     *keystore_len = 1;
     return MENDER_OK;
 }
-#endif
+#endif /* CONFIG_MENDER_CLIENT_INVENTORY_DISABLE */
 
 int
 main(void) {
@@ -142,13 +142,13 @@ main(void) {
     LOG_INF("Update Module 'test-update' initialized");
 #endif /* BUILD_INTEGRATION_TESTS */
 
-#ifdef CONFIG_MENDER_CLIENT_INVENTORY
+#ifndef CONFIG_MENDER_CLIENT_INVENTORY_DISABLE
     if (MENDER_OK != mender_inventory_add_callback(persistent_inventory_cb, true)) {
         LOG_ERR("Failed to add inventory callback");
         goto END;
     }
     LOG_INF("Mender inventory callback added");
-#endif /* CONFIG_MENDER_CLIENT_INVENTORY */
+#endif /* CONFIG_MENDER_CLIENT_INVENTORY_DISABLE */
 
     /* Finally activate mender client */
     if (MENDER_OK != mender_client_activate()) {
