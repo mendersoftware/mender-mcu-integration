@@ -38,7 +38,7 @@ def create_header_file():
         open(get_header_file(), "w").close()
 
 
-# The name of the configurable callbaks can be found in definition.py
+# The name of the configurable callbacks can be found in definition.py
 def set_callback(function_name, definition):
     with open(get_header_file(), "a") as f:
         f.write(f"#define {function_name}() \\{definition}\n")
