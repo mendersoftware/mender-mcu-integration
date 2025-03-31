@@ -84,7 +84,7 @@ build:board:
     - echo "Building for ${MENDER_MCU_BOARD} with revision ${MENDER_MCU_REVISION}"
     - cd modules/mender-mcu && git fetch mender ${MENDER_MCU_REVISION}
     - git checkout FETCH_HEAD && cd -
-    - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR}
+    - west build --board ${MENDER_MCU_BOARD} ${CI_PROJECT_DIR} -- -DCONFIG_MENDER_ARTIFACT_NAME=\"release-1\"
   parallel: !reference [.boards-matrix, parallel]
 
 test:integration:

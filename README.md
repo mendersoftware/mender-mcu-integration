@@ -47,6 +47,7 @@ You need your hosted Mender Tenant token and local WiFi SSID and password. Set t
 WIFI_SSID="<Paste your local WiFi SSID here>"
 WIFI_PASS="<Paste your local WiFi password here>"
 TENANT_TOKEN="<Paste your hosted Mender tenant token here>"
+ARTIFACT_NAME="release-1"
 ```
 
 Plug your ESP32-S3 into your computer. Build and flash the bootloader and the application with the following command:
@@ -55,10 +56,13 @@ west build \
   --sysbuild mender-mcu-integration -- \
   -DCONFIG_MENDER_APP_WIFI_SSID=\"$WIFI_SSID\" \
   -DCONFIG_MENDER_APP_WIFI_PSK=\"$WIFI_PASS\" \
-  -DCONFIG_MENDER_SERVER_TENANT_TOKEN=\"$TENANT_TOKEN\" && west flash
+  -DCONFIG_MENDER_SERVER_TENANT_TOKEN=\"$TENANT_TOKEN\" \
+  -DCONFIG_MENDER_ARTIFACT_NAME=\"$ARTIFACT_NAME\" && west flash
 ```
 
 Log into your hosted Mender account and find your new device in the pending devices tab.
+
+Find the generated Mender Artifact at `build/mender-mcu-integration/zephyr/zephyr.mender`
 
 ### Serial line output
 
@@ -214,7 +218,7 @@ or
 west build -t run
 ```
 
-## Creating the Mender Artifact
+## Manually creating the Mender Artifact
 
 Create an Artifact (remember to disable compression):
 
