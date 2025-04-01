@@ -39,6 +39,10 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #include "modules/noop-update-module.h"
 #endif /* CONFIG_MENDER_APP_NOOP_UPDATE_MODULE */
 
+#ifdef CONFIG_MENDER_CLIENT_INVENTORY_DISABLE
+#error Mender MCU integration app requires the inventory feature
+#endif /* CONFIG_MENDER_CLIENT_INVENTORY_DISABLE */
+
 MENDER_FUNC_WEAK mender_err_t
 mender_network_connect_cb(void) {
     LOG_DBG("network_connect_cb");
@@ -79,7 +83,6 @@ mender_get_identity_cb(const mender_identity_t **identity) {
     return MENDER_FAIL;
 }
 
-#ifdef CONFIG_MENDER_CLIENT_INVENTORY
 static mender_err_t
 persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     static mender_keystore_t inventory[] = { { .name = "App", .value = "mender-mcu-integration" } };
@@ -87,7 +90,6 @@ persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     *keystore_len = 1;
     return MENDER_OK;
 }
-#endif
 
 int
 main(void) {
@@ -142,13 +144,11 @@ main(void) {
     LOG_INF("Update Module 'test-update' initialized");
 #endif /* BUILD_INTEGRATION_TESTS */
 
-#ifdef CONFIG_MENDER_CLIENT_INVENTORY
     if (MENDER_OK != mender_inventory_add_callback(persistent_inventory_cb, true)) {
         LOG_ERR("Failed to add inventory callback");
         goto END;
     }
     LOG_INF("Mender inventory callback added");
-#endif /* CONFIG_MENDER_CLIENT_INVENTORY */
 
     /* Finally activate mender client */
     if (MENDER_OK != mender_client_activate()) {
