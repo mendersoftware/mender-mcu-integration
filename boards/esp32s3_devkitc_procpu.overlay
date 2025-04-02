@@ -1,3 +1,23 @@
 &wifi {
 	status = "okay";
 };
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/*
+		  An extra partition starting right after the last partition defined in
+		  the board's device tree (actually shared by 8M Espressif boards, at
+		  zephyr/dts/common/espressif/partitions_0x0_default_8M.dtsi).
+		  WARNING: Needs to be made bigger if more sectors or a non-zero sector
+		           offset are to be used.
+		*/
+		mender_partition: partition@7F1000 {
+			label = "mender-partition";
+			reg = <0x7F1000 DT_SIZE_K(16)>;
+		};
+	};
+};
