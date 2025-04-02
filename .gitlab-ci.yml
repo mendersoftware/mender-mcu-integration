@@ -137,5 +137,5 @@ publish:tests:
     - cd mender-mcu-${MENDER_MCU_REVISION} && cp ../tests/integration/coverage.lcov .
     - coveralls report --build-number $PARENT_MENDER_MCU_PIPELINE_ID
   rules:
-    # Only publish coverage if the pipeline is triggered
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    # Only publish coverage if the pipeline is triggered and the branch is protected
+    - if: $CI_PIPELINE_SOURCE == "pipeline" && $CI_COMMIT_REF_PROTECTED == "true"
