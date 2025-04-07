@@ -24,7 +24,8 @@ RUN apt-get update && apt install -y --no-install-recommends \
   gcc-multilib \
   g++-multilib \
   libsdl2-dev \
-  libmagic1
+  libmagic1 \
+  jq
 
 ARG ZEPHYR_SDK_VERSION=0.17.0
 
