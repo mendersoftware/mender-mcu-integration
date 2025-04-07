@@ -39,13 +39,13 @@ variables:
             native_sim
           ]
 
-.build-template:
+.build:template:
   tags:
     - hetzner-amd-beefy
   stage: build
 
 build:workspace:
-  extends: .build-template
+  extends: .build:template
   services:
     - name: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/docker:${DOCKER_VERSION}-dind
       alias: docker
@@ -73,7 +73,7 @@ build:workspace:
 
 
 build:board:
-  extends: .build-template
+  extends: .build:template
   image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
   needs:
     - job: build:workspace
@@ -88,7 +88,7 @@ build:board:
   parallel: !reference [.boards-matrix, parallel]
 
 test:integration:
-  extends: .build-template
+  extends: .build:template
   image: ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${IMAGE_VERSION}
   stage: test:integration
   tags:
