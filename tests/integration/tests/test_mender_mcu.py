@@ -28,10 +28,6 @@ import definitions
 
 def test_deployment_abort(server, get_build_dir):
 
-    """
-    Sample test to demonstrate use of framework
-    """
-
     artifact_name = server.upload_artifact(
         "test-artifact", device_types=("native_sim/native",)
     )
