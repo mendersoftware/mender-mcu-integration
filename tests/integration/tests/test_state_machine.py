@@ -370,6 +370,9 @@ class TestStateMachineTransitions:
                     server.create_deployment(artifact_name, server.device_id, True)
                     active_deployment = True
 
+                if "No deployment available" in line and not is_noop:
+                    traversed_states.clear()
+
                 if (
                     self.FAILED_DEPLOYMENT in line and not state_set["ExpectedSuccess"]
                 ) or (
