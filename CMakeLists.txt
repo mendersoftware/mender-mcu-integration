@@ -35,8 +35,8 @@ if(BUILD_INTEGRATION_TESTS)
     target_sources(app PRIVATE tests/integration/src/callbacks.c)
 endif()
 
-# Don't install certificates if on-prem server is selected
-if (NOT CONFIG_MENDER_SERVER_HOST_ON_PREM)
+# Install certificates if a hosted Mender server is selected
+if (CONFIG_MENDER_SERVER_HOST_US OR CONFIG_MENDER_SERVER_HOST_EU)
     # Links to certificates used for hosted Mender US
     if (CONFIG_MENDER_SERVER_HOST_US)
         set(PRIMARY_CERTIFICATE_LINK "https://www.amazontrust.com/repository/AmazonRootCA1.cer")
