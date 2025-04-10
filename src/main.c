@@ -86,8 +86,8 @@ mender_get_identity_cb(const mender_identity_t **identity) {
 static mender_err_t
 persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
     static mender_keystore_t inventory[] = { { .name = "App", .value = "mender-mcu-integration" } };
-    *keystore = inventory;
-    *keystore_len = 1;
+    *keystore                            = inventory;
+    *keystore_len                        = 1;
     return MENDER_OK;
 }
 
@@ -101,18 +101,18 @@ main(void) {
 
     certs_add_credentials();
 
-    LOG_INF("Initializing Mender Client with:");
-    LOG_INF("   Device type:   '%s'", CONFIG_MENDER_DEVICE_TYPE);
-    LOG_INF("   Identity:      '{\"%s\": \"%s\"}'", mender_identity.name, mender_identity.value);
-
     /* Initialize mender-client */
-    mender_client_config_t    mender_client_config    = { .device_type = NULL, .recommissioning = false };
+    mender_client_config_t    mender_client_config    = { .device_type = CONFIG_MENDER_DEVICE_TYPE, .recommissioning = false };
     mender_client_callbacks_t mender_client_callbacks = { .network_connect        = mender_network_connect_cb,
                                                           .network_release        = mender_network_release_cb,
                                                           .deployment_status      = mender_deployment_status_cb,
                                                           .restart                = mender_restart_cb,
                                                           .get_identity           = mender_get_identity_cb,
                                                           .get_user_provided_keys = NULL };
+
+    LOG_INF("Initializing Mender Client with:");
+    LOG_INF("   Device type:   '%s'", mender_client_config.device_type);
+    LOG_INF("   Identity:      '{\"%s\": \"%s\"}'", mender_identity.name, mender_identity.value);
 
     if (MENDER_OK != mender_client_init(&mender_client_config, &mender_client_callbacks)) {
         LOG_ERR("Failed to initialize the client");
