@@ -345,7 +345,7 @@ class TestStateMachineTransitions:
             server.accept_device()
             device.status.is_authenticated(timeout=60)
             artifact_name = server.upload_artifact(
-                "test-mender-mcu-state-machine", device_types=("native_sim/native",)
+                "test-mender-mcu-state-machine", device_types=("test-device",)
             )
 
             active_deployment = False

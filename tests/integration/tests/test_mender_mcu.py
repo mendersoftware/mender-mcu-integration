@@ -29,7 +29,7 @@ import definitions
 def test_deployment_abort(server, get_build_dir):
 
     artifact_name = server.upload_artifact(
-        "test-artifact", device_types=("native_sim/native",)
+        "test-artifact", device_types=("test-device",)
     )
 
     download_body = r"""
@@ -55,7 +55,7 @@ def test_deployment_abort(server, get_build_dir):
     device.status.is_authenticated(timeout=60)
 
     artifact_name = server.upload_artifact(
-        "test-artifact", device_types=("native_sim/native",)
+        "test-artifact", device_types=("test-device",)
     )
     # Create deployment
     server.create_deployment(artifact_name, server.device_id, True)
