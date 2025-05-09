@@ -64,13 +64,23 @@ if (CONFIG_MENDER_SERVER_HOST_US OR CONFIG_MENDER_SERVER_HOST_EU)
         ${SECONDARY_CERTIFICATE_LINK} ${SECONDARY_CERTIFICATE}
         EXPECTED_HASH SHA256=${SECONDARY_CERTIFICATE_SHA256}
     )
+
+elseif(CONFIG_MENDER_SERVER_HOST_ON_PREM)
+    if (NOT CONFIG_MENDER_APP_SERVER_HOST_ON_PREM_CERT STREQUAL "")
+        set(PRIMARY_CERTIFICATE "${CMAKE_CURRENT_SOURCE_DIR}/${CONFIG_MENDER_APP_SERVER_HOST_ON_PREM_CERT}")
+    else()
+        message(WARNING "CONFIG_MENDER_SERVER_HOST_ON_PREM without CONFIG_MENDER_APP_SERVER_HOST_ON_PREM_CERT results in a broken configuration")
+    endif()
+else()
+    # This is an impossible configuration, MENDER_SERVER_HOST is a choice
+    message(WARNING "Either CONFIG_MENDER_SERVER_HOST_US, CONFIG_MENDER_SERVER_HOST_EU or CONFIG_MENDER_SERVER_HOST_ON_PREM needs to be selected")
 endif()
 
 if (PRIMARY_CERTIFICATE)
     add_custom_target(certificate_one DEPENDS ${PRIMARY_CERTIFICATE})
     add_dependencies(app certificate_one)
 
-    generate_inc_file_for_target(certificate_one
+    generate_inc_file_for_target(app
         ${PRIMARY_CERTIFICATE}
         "${ZEPHYR_BINARY_DIR}/include/generated/PrimaryCertificate.cer.inc"
     )
@@ -80,7 +90,7 @@ if (SECONDARY_CERTIFICATE)
     add_custom_target(certificate_two DEPENDS ${SECONDARY_CERTIFICATE})
     add_dependencies(app certificate_two)
 
-    generate_inc_file_for_target(certificate_two
+    generate_inc_file_for_target(app
         ${SECONDARY_CERTIFICATE}
         "${ZEPHYR_BINARY_DIR}/include/generated/SecondaryCertificate.cer.inc"
     )
