@@ -24,6 +24,13 @@ endif # WIFI
 			An Update Module that does nothing. Useful for inspiration on how to get started writing
 			your update module, as an alternative to the built-in zephyr-image Update module configured
 			with MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
+	
+	config MENDER_APP_SERVER_HOST_ON_PREM_CERT
+		string "Path to the DER formatted on-prem Mender Server Certificate"
+		default ""
+		help
+			When in combination with MENDER_SERVER_HOST_ON_PREM, the Mender Reference App
+			will add this credential as the MENDER_NET_CA_CERTIFICATE_TAG_PRIMARY.
 
 endmenu
 
