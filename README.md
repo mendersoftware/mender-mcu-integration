@@ -17,20 +17,9 @@ Zephyr Module, with configurations for some boards to choose from.
 ![Mender logo](https://github.com/mendersoftware/mender/raw/master/mender_logo.png)
 
 
-## Project Status
-
-This repository is a work in progress. As we continue development, features and functionality may
-evolve significantly.
-
-
 ## Get started
 
-Since the project is under active development, we recommend watching the repository or checking back
-regularly for updates. Detailed documentation and usage instructions will be provided as the project
-progresses.
-
-To start using Mender, we recommend that you begin with the Getting started
-section in [the Mender documentation](https://docs.mender.io/).
+To get started with Mender for Microcontrollers, visit [Mender documentation](https://docs.mender.io/get-started/microcontroller-preview).
 
 
 ## Build the Zephyr Project Mender reference app for ESP32-S3-DevKitC and hosted Mender

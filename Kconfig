@@ -1,30 +1,29 @@
-mainmenu "Mender App"
+mainmenu "Mender Reference App"
+
+menu "Mender Reference App"
+
+menuconfig WIFI
+bool "Mender App WIFI Configuration"
+default n
 
 if WIFI
+	config MENDER_APP_WIFI_SSID
+		string "WIFI SSID - Network name"
+		default "my_network"
 
-menu "Mender App WIFI Configuration"
-
-config MENDER_APP_WIFI_SSID
-	string "WIFI SSID - Network name"
-	default "my_network"
-
-config MENDER_APP_WIFI_PSK
-	string "WIFI PSK - Network password key"
-	default "secret_passwd"
-
-endmenu
+	config MENDER_APP_WIFI_PSK
+		string "WIFI PSK - Network password key"
+		default "secret_passwd"
 
 endif # WIFI
 
-menu "No-op Update Module"
-
-config MENDER_APP_NOOP_UPDATE_MODULE
-	bool "Enable no-op Update Module"
-	default n
-	help
-		An Update Module that does nothing. Useful for inspiration on how to get started writing
-		your update module, as an alternative to the built-in zephyr-image Update module configured
-		with MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
+	config MENDER_APP_NOOP_UPDATE_MODULE
+		bool "Enable no-op Update Module"
+		default n
+		help
+			An Update Module that does nothing. Useful for inspiration on how to get started writing
+			your update module, as an alternative to the built-in zephyr-image Update module configured
+			with MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
 
 endmenu
 
