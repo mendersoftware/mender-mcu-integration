@@ -54,23 +54,36 @@ if (CONFIG_MENDER_SERVER_HOST_US OR CONFIG_MENDER_SERVER_HOST_EU)
     endif()
 
     set(PRIMARY_CERTIFICATE "${CMAKE_CURRENT_BINARY_DIR}/PrimaryCertificate.cer")
-    file(DOWNLOAD ${PRIMARY_CERTIFICATE_LINK} ${PRIMARY_CERTIFICATE} EXPECTED_HASH SHA256=${PRIMARY_CERTIFICATE_SHA256})
+    file(DOWNLOAD
+        ${PRIMARY_CERTIFICATE_LINK} ${PRIMARY_CERTIFICATE}
+        EXPECTED_HASH SHA256=${PRIMARY_CERTIFICATE_SHA256}
+    )
+
+    set(SECONDARY_CERTIFICATE "${CMAKE_CURRENT_BINARY_DIR}/SecondaryCertificate.cer")
+    file(DOWNLOAD
+        ${SECONDARY_CERTIFICATE_LINK} ${SECONDARY_CERTIFICATE}
+        EXPECTED_HASH SHA256=${SECONDARY_CERTIFICATE_SHA256}
+    )
+endif()
+
+if (PRIMARY_CERTIFICATE)
     add_custom_target(certificate_one DEPENDS ${PRIMARY_CERTIFICATE})
     add_dependencies(app certificate_one)
 
-    set(SECONDARY_CERTIFICATE "${CMAKE_CURRENT_BINARY_DIR}/SecondaryCertificate.cer")
-    file(DOWNLOAD ${SECONDARY_CERTIFICATE_LINK} ${SECONDARY_CERTIFICATE} EXPECTED_HASH SHA256=${SECONDARY_CERTIFICATE_SHA256})
-    add_custom_target(certificate_two DEPENDS ${SECONDARY_CERTIFICATE})
-    add_dependencies(app certificate_two)
-
-    generate_inc_file_for_target(app
+    generate_inc_file_for_target(certificate_one
         ${PRIMARY_CERTIFICATE}
         "${ZEPHYR_BINARY_DIR}/include/generated/PrimaryCertificate.cer.inc"
     )
+endif()
 
-    generate_inc_file_for_target(app
+if (SECONDARY_CERTIFICATE)
+    add_custom_target(certificate_two DEPENDS ${SECONDARY_CERTIFICATE})
+    add_dependencies(app certificate_two)
+
+    generate_inc_file_for_target(certificate_two
         ${SECONDARY_CERTIFICATE}
         "${ZEPHYR_BINARY_DIR}/include/generated/SecondaryCertificate.cer.inc"
     )
 endif()
+
 file(COPY_FILE "config-tls-mender.h" "${ZEPHYR_BINARY_DIR}/include/generated/config-tls-mender.h")
