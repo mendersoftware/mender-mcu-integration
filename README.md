@@ -207,6 +207,51 @@ or
 west build -t run
 ```
 
+### Using on-premise demo Mender Server
+
+To run the Native Simulator with on-premise Mender Server:
+
+1. Follow instructions from [mender-server](https://github.com/mendersoftware/mender-server) to start the server
+
+2. Copy and convert the demo certificate for docker.mender.io
+    ```
+    wget https://raw.githubusercontent.com/mendersoftware/mender-server/main/compose/certs/mender.crt
+    openssl x509 -in mender.crt -outform der -out mender.der
+    ```
+
+3. Add the following Kconfig parameters to your build:
+    ```
+    CONFIG_MENDER_SERVER_HOST_ON_PREM=y
+    CONFIG_MENDER_SERVER_HOST="https://docker.mender.io"
+    CONFIG_MENDER_APP_SERVER_HOST_ON_PREM_CERT="mender.der"
+    CONFIG_DNS_SERVER_IP_ADDRESSES=y
+    CONFIG_DNS_SERVER1="192.0.2.2:15353"
+    ```
+
+4. Start networking with  `net-setup.sh`
+
+5. Start the DNS and DHCP servers with `dnsmasq`
+    ```
+    cat << EOF > dnsmasq.conf
+    # Config for Mender Demo Server DNS and DHCPv4
+    interface=zeth
+
+    port=15353
+    bind-interfaces
+    no-resolv
+
+    address=/docker.mender.io/192.0.2.2
+    dhcp-range=192.0.2.16,192.0.2.32,1h
+    EOF
+    sudo dnsmasq -C dnsmasq.conf -d
+    ```
+
+6. Launch the Mender MCU client \o/
+
+    ```
+    west build -t run
+    ```
+
 ## Manually creating the Mender Artifact
 
 Create an Artifact (remember to disable compression):
