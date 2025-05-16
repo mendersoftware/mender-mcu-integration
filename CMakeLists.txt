@@ -39,17 +39,17 @@ endif()
 if (CONFIG_MENDER_SERVER_HOST_US OR CONFIG_MENDER_SERVER_HOST_EU)
     # Links to certificates used for hosted Mender US
     if (CONFIG_MENDER_SERVER_HOST_US)
-        set(PRIMARY_CERTIFICATE_LINK "https://www.amazontrust.com/repository/AmazonRootCA1.cer")
+        set(PRIMARY_CERTIFICATE_LINK "https://docs.mender.io/releases/certs/AmazonRootCA1.der")
         set(PRIMARY_CERTIFICATE_SHA256 "8ecde6884f3d87b1125ba31ac3fcb13d7016de7f57cc904fe1cb97c6ae98196e")
 
-        set(SECONDARY_CERTIFICATE_LINK "https://i.pki.goog/r4.crt")
+        set(SECONDARY_CERTIFICATE_LINK "https://docs.mender.io/releases/certs/GoogleTrustServicesR4.der")
         set(SECONDARY_CERTIFICATE_SHA256 "349dfa4058c5e263123b398ae795573c4e1313c83fe68f93556cd5e8031b3c7d")
     # Links to certificates used for hosted Mender EU
     elseif (CONFIG_MENDER_SERVER_HOST_EU)
-        set(PRIMARY_CERTIFICATE_LINK "https://letsencrypt.org/certs/isrgrootx1.der")
+        set(PRIMARY_CERTIFICATE_LINK "https://docs.mender.io/releases/certs/isrgrootx1.der")
         set(PRIMARY_CERTIFICATE_SHA256 "96bcec06264976f37460779acf28c5a7cfe8a3c0aae11a8ffcee05c0bddf08c6")
 
-        set(SECONDARY_CERTIFICATE_LINK "https://i.pki.goog/r4.crt")
+        set(SECONDARY_CERTIFICATE_LINK "https://docs.mender.io/releases/certs/GoogleTrustServicesR4.der")
         set(SECONDARY_CERTIFICATE_SHA256 "349dfa4058c5e263123b398ae795573c4e1313c83fe68f93556cd5e8031b3c7d")
     endif()
 
