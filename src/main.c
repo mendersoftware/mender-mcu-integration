@@ -93,7 +93,7 @@ persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
 
 int
 main(void) {
-    printf("Hello World! %s\n", CONFIG_BOARD_TARGET);
+    printf("Hello World! %s %s\n", CONFIG_MENDER_ARTIFACT_NAME,CONFIG_BOARD_TARGET);
 
     netup_wait_for_network();
 
