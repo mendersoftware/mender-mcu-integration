@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
-ENV MENDER_ARTIFACT_VERSION=4.0.0
+ENV MENDER_ARTIFACT_VERSION=4.1.0
 
 # https://docs.zephyrproject.org/4.0.0/develop/getting_started/index.html#install-dependencies
 RUN apt-get update && apt install -y --no-install-recommends \
@@ -58,6 +58,6 @@ RUN cd /zephyr-workspace-cache \
 
 # Fetch and install mender-artifact
 RUN apt update -yyq && apt install -yyq lcov \
-    && wget "https://downloads.mender.io/repos/debian/pool/main/m/mender-artifact/mender-artifact_${MENDER_ARTIFACT_VERSION}-1+debian+bookworm_amd64.deb" \
+    && wget "https://downloads.mender.io/repos/workstation-tools/pool/main/m/mender-artifact/mender-artifact_${MENDER_ARTIFACT_VERSION}-1+debian+bookworm_amd64.deb" \
       -O mender-artifact.deb && \
       dpkg --install mender-artifact.deb
