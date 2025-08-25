@@ -74,7 +74,7 @@ wifi_connect(struct net_if *iface) {
 #endif
 
 static void
-event_handler(struct net_mgmt_event_callback *cb, uint32_t mgmt_event, struct net_if *iface) {
+event_handler(struct net_mgmt_event_callback *cb, uint64_t mgmt_event, struct net_if *iface) {
     int i = 0;
 
     if (mgmt_event != NET_EVENT_IPV4_ADDR_ADD) {
