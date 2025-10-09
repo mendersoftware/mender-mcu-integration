@@ -116,7 +116,7 @@ class NativeSim:
                 command_output = " ".join(command)
                 pytest.fail(f"Failed to compile with command: {command_output}")
 
-    def start(self, compile=True, pristine=False, extra_variables=None):
+    def start(self, compile=True, pristine=False, extra_variables=None, wait_after_start=5):
         if extra_variables is None:
             extra_variables = []
         if compile:
@@ -132,6 +132,8 @@ class NativeSim:
             text=True,
         )
         logger.info("Started device")
+        # Give the device some time to start before returning
+        time.sleep(wait_after_start)
 
     def stop(self, stop_after=0):
         time.sleep(stop_after)
