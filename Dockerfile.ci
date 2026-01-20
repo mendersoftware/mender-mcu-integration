@@ -39,7 +39,7 @@ RUN mkdir /opt/toolchains && wget -qO- https://github.com/zephyrproject-rtos/sdk
 # tell cmake where to find the Zephyr SDK cmake packages
 ENV CMAKE_PREFIX_PATH=/opt/toolchains
 
-RUN pip install --no-cache-dir west==1.2.0 --break-system-packages
+RUN pip install --no-cache-dir west==1.2.0 esptool --break-system-packages
 
 COPY west.yml /zephyr-workspace-cache/.manifest/west.yml
 
