@@ -15,12 +15,16 @@ variables:
   MENDER_MCU_REVISION:
     value: "main"
     description: "Mender MCU Revision - use commit SHA"
-  IMAGE_VERSION:
-    value: "main"
+
+  # Manual trigger variables override workflow variables, so we use this indirection
+  # to allow workflow to set IMAGE_VERSION based on workspace changes.
+  IMAGE_VERSION_OVERRIDE:
+    value: ""
     description: |
-      Version of the west-workspace image to use.
-      Follows gitlab branch of mender-mcu-integration.
-      Revision updated automatically in jobs that re-build the workspace.
+       Override IMAGE_VERSION (leave empty for auto-detection based on workspace changes)
+       IMAGE_VERSION is the version of the west-workspace image to use.
+       Follows gitlab branch of mender-mcu-integration.
+
   CONTAINER_TAG:
     value: "west-workspace"
     description: "Tag for the workspace image"
@@ -35,6 +39,29 @@ variables:
   TEST_RAM_USAGE_MAX_BYTES:
     value: "20480"
     description: "Max allowed static RAM usage for Mender MCU"
+
+.workspace-changes: &workspace-changes
+  changes:
+    paths:
+      - Dockerfile.ci
+      - west.yml
+    compare_to: main
+
+# https://docs.gitlab.com/ci/yaml/#workflowrulesvariables
+workflow:
+  rules:
+    # If IMAGE_VERSION_OVERRIDE is explicitly set, use it
+    - if: $IMAGE_VERSION_OVERRIDE
+      variables:
+        IMAGE_VERSION: $IMAGE_VERSION_OVERRIDE
+    # If workspace files changed, use current branch as IMAGE_VERSION
+    - <<: *workspace-changes
+      variables:
+        IMAGE_VERSION: $CI_COMMIT_BRANCH
+    # Default to main
+    - when: always
+      variables:
+        IMAGE_VERSION: "main"
 
 .boards-matrix:
   parallel:
@@ -66,18 +93,10 @@ build:workspace:
         --tag ${CI_REGISTRY_IMAGE}:${CONTAINER_TAG}-${CI_COMMIT_BRANCH}
         --push
         .
-    - echo "IMAGE_VERSION=$CI_COMMIT_BRANCH" >> image_version.env
   rules:
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "pipeline"
     # Rebuild the workspace image if the Dockerfile.ci or west.yml changes
-    - changes:
-        paths:
-          - Dockerfile.ci
-          - west.yml
-        compare_to: main
-  artifacts:
-    reports:
-      dotenv: image_version.env
+    - <<: *workspace-changes
 
 .build:board:base:
   extends: .build:template
