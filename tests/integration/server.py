@@ -23,10 +23,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 URL_DEPLOYMENTS_STATUS = "/deployments/{id}/status"
-from mender_server.backend.tests.integration.testutils.api.client import ApiClient
-from mender_server.backend.tests.integration.testutils.api import deployments
+from mender_server.backend.tests.testutils.api.client import ApiClient
+from mender_server.backend.tests.testutils.api import deployments
 
-from mender_server.backend.tests.integration.testutils.api import (
+from mender_server.backend.tests.testutils.api import (
     tenantadm,
     deviceauth,
 )
