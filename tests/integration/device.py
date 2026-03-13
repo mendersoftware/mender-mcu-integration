@@ -41,8 +41,8 @@ class DeviceStatus:
             line = stdout(self.device)
             if "Authenticated successfully" in line:
                 logger.info("Device authenticated")
-                return True
-        return False
+                return
+        pytest.fail("Failed to authenticate device")
 
     def is_aborted(self, timeout=60):
         start_time = time.time()
