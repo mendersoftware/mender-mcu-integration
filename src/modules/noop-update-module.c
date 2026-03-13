@@ -31,9 +31,9 @@ noop_update_module_register(void) {
     mender_err_t            ret;
     mender_update_module_t *noop_update_module;
 
-    /* Register the zephyr-image update module */
+    /* Register the noop update module */
     if (NULL == (noop_update_module = mender_calloc(1, sizeof(mender_update_module_t)))) {
-        mender_log_error("Unable to allocate memory for the 'zephyr-image' update module");
+        mender_log_error("Unable to allocate memory for the 'noop-update' update module");
         return MENDER_FAIL;
     }
     noop_update_module->callbacks[MENDER_UPDATE_STATE_DOWNLOAD]        = &noop_update_module_download;
