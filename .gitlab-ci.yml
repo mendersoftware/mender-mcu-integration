@@ -4,6 +4,9 @@ include:
     file:
       - '.gitlab-ci-github-status-updates.yml'
       - '.gitlab-ci-check-license.yml'
+  - project: "Northern.tech/Mender/mendertesting"
+    file: "qa-common/send-results-to-mantra.yml"
+    ref: "master"
 
 stages:
   - build
@@ -172,7 +175,10 @@ test:integration:
     - git checkout FETCH_HEAD && cd -
     - cd ${CI_PROJECT_DIR}/tests/integration
     - pip install --ignore-installed --break-system-packages -r mender_server/backend/tests/requirements-integration.txt
-    - pytest -v --host hosted.mender.io
+    - pytest --verbose --junitxml=results.xml --host hosted.mender.io
+  after_script:
+    - export MANTRA_PROJECT_NAME="client_general"
+    - !reference [.mantra-push-results]
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == "true"
   artifacts:
