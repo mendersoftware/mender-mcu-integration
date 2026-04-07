@@ -7,6 +7,7 @@ include:
   - project: "Northern.tech/Mender/mendertesting"
     file: "qa-common/send-results-to-mantra.yml"
     ref: "master"
+  - component: gitlab.com/renovate-bot/renovate-runner/renovate.gitlab-ci@main
 
 stages:
   - build
@@ -42,6 +43,35 @@ variables:
   TEST_RAM_USAGE_MAX_BYTES:
     value: "20480"
     description: "Max allowed static RAM usage for Mender MCU"
+
+
+  # Renovate required variables
+  RENOVATE_PLATFORM: github
+  RENOVATE_ENDPOINT: "https://api.github.com"
+  RENOVATE_GIT_AUTHOR: "mender-test-bot <mender@northern.tech>"
+  RENOVATE_TOKEN: $GITHUB_BOT_TOKEN_REPO_FULL
+  RENOVATE_GITHUB_COM_TOKEN: $GITHUB_BOT_TOKEN_REPO_FULL
+  RENOVATE_REPOSITORIES: "mendersoftware/$CI_PROJECT_NAME"
+  RENOVATE_REQUIRE_CONFIG: "optional"
+  RENOVATE_ONBOARDING: "false"
+  RENOVATE_GIT_PRIVATE_KEY: $SSH_PRIVATE_KEY
+  RENOVATE_CONFIG_FILE: "$CI_PROJECT_DIR/renovate.json"
+  FORCE_RENOVATE_RUN:
+    description: "Force a renovate bot run"
+    value: "false"
+    options:
+      - "true"
+      - "false"
+
+# Override rules
+renovate:
+  needs: []
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $FORCE_RENOVATE_RUN == "true"'
+  stage: build
+  tags:
+    - k8s-small
 
 .workspace-changes: &workspace-changes
   changes:
