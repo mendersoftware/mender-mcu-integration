@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
-ENV MENDER_ARTIFACT_VERSION=4.2.0
+ENV MENDER_ARTIFACT_VERSION=4.4.0
 
 # https://docs.zephyrproject.org/4.0.0/develop/getting_started/index.html#install-dependencies
 RUN apt-get update && apt install -y --no-install-recommends \
