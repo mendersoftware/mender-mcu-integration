@@ -50,29 +50,30 @@ def test_deployment_abort(server, get_build_dir, mac_address):
     device.set_tenant(server.get_tenant_token())
     device.set_mac(mac_address)
 
-    # Start device
-    device.start(pristine=True)
-    server.accept_device(mac_address)
-    device.status.is_authenticated(timeout=60)
+    try:
+        # Start device
+        device.start(pristine=True)
+        server.accept_device(mac_address)
+        device.status.is_authenticated(timeout=60)
 
-    artifact_name = server.upload_artifact(
-        "test-artifact", device_types=("test-device",)
-    )
-    # Create deployment
-    server.create_deployment(artifact_name, server.device_id, True)
+        artifact_name = server.upload_artifact(
+            "test-artifact", device_types=("test-device",)
+        )
+        # Create deployment
+        server.create_deployment(artifact_name, server.device_id, True)
 
-    # Wait for download callback to sleep so we can abort
-    timeout = 60
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        line = stdout(device)
-        if "Sleeping in download\n" in line:
-            server.abort_deployment()
-            break
+        # Wait for download callback to sleep so we can abort
+        timeout = 60
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            line = stdout(device)
+            if "Sleeping in download\n" in line:
+                server.abort_deployment()
+                break
 
-    if not device.status.is_aborted(timeout=60):
+        if not device.status.is_aborted(timeout=60):
+            pytest.fail("Deployment did not abort")
+
+        logger.info("Deployment aborted")
+    finally:
         device.stop()
-        pytest.fail("Deployment did not abort")
-
-    device.stop()
-    logger.info("Deployment aborted")
