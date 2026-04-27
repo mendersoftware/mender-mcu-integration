@@ -77,6 +77,18 @@ class Server:
             return
         raise AssertionError(f"No pending device with mac {mac_address} found")
 
+    def decommission_device(self):
+        if not self.device_id:
+            return
+        r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
+            "DELETE",
+            deviceauth.URL_DEVICE,
+            path_params={"id": self.device_id},
+        )
+        assert r.status_code in (204, 404), f"{r.text} {r.status_code}"
+        self.device_id = ""
+        self.deployment_id = ""
+
     def abort_deployment(self):
         logger.info("Aborting deployment")
         return self.api_dev_deploy.with_auth(self.auth_token).call(

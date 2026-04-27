@@ -96,6 +96,12 @@ def teardown():
 
 
 @pytest.fixture(scope="function", autouse=True)
+def cleanup_device(server):
+    yield
+    server.decommission_device()
+
+
+@pytest.fixture(scope="function", autouse=True)
 def get_coverage(request, get_build_dir):
     yield
     test_name = f"{re.sub(r'[\[\]]', '_', request.node.name)}.info"
