@@ -15,6 +15,7 @@
 import os
 import re
 import sys
+import random
 import shutil
 import logging
 import tempfile
@@ -80,6 +81,11 @@ def server(setup_user, request):
 @pytest.fixture(scope="function", autouse=True)
 def get_build_dir():
     return tempfile.mkdtemp()
+
+
+@pytest.fixture(scope="function")
+def mac_address():
+    return "02:" + random.randbytes(5).hex(":")
 
 
 @pytest.fixture(autouse=True, scope="function")

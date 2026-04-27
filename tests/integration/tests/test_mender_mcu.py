@@ -26,7 +26,7 @@ from device import NativeSim
 import definitions
 
 
-def test_deployment_abort(server, get_build_dir):
+def test_deployment_abort(server, get_build_dir, mac_address):
 
     artifact_name = server.upload_artifact(
         "test-artifact", device_types=("test-device",)
@@ -48,10 +48,11 @@ def test_deployment_abort(server, get_build_dir):
 
     # Temporary workaround for the PoC
     device.set_tenant(server.get_tenant_token())
+    device.set_mac(mac_address)
 
     # Start device
     device.start(pristine=True)
-    server.accept_device()
+    server.accept_device(mac_address)
     device.status.is_authenticated(timeout=60)
 
     artifact_name = server.upload_artifact(

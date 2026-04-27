@@ -52,23 +52,3 @@ mender_restart_cb(void) {
     return MENDER_OK;
 }
 
-#ifndef MAC_ADDRESS
-#define MAC_ADDRESS "11:11:22:33:55:88"
-#endif /* MAC_ADDRESS */
-static char mac_address[18] = MAC_ADDRESS;
-
-static mender_identity_t mender_identity = { .name = "mac", .value = mac_address };
-
-mender_err_t
-mender_get_identity_cb(const mender_identity_t **identity) {
-    LOG_DBG("get_identity_cb");
-#ifdef GET_IDENTITY_CALLBACK
-    GET_IDENTITY_CALLBACK();
-#else
-    if (NULL != identity) {
-        *identity = &mender_identity;
-        return MENDER_OK;
-    }
-#endif
-    return MENDER_FAIL;
-}
