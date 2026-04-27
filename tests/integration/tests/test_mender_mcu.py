@@ -44,7 +44,7 @@ def test_deployment_abort(server, get_build_dir, mac_address):
 
     device = NativeSim(get_build_dir, stdout=True)
     # Set host and tenant in the device
-    device.set_host("https://hosted.mender.io")
+    device.set_host(f"https://{server.host}")
 
     # Temporary workaround for the PoC
     device.set_tenant(server.get_tenant_token())
