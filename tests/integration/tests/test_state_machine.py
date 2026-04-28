@@ -309,7 +309,9 @@ class TestStateMachineTransitions:
     FAILED_DEPLOYMENT = "deployment_status_cb: failure"
     SUCCESSFUL_DEPLOYMENT = "deployment_status_cb: success"
 
-    def do_test(self, server, get_build_dir, test_state_set, state_set_key):
+    def do_test(
+        self, server, get_build_dir, mac_address, test_state_set, state_set_key
+    ):
         device = NativeSim(get_build_dir, stdout=True)
 
         state_set = test_state_set[state_set_key]
@@ -333,6 +335,7 @@ class TestStateMachineTransitions:
             # Set host and tenant in the device
             device.set_host(f"https://{server.host}")
             device.set_tenant(server.get_tenant_token())
+            device.set_mac(mac_address)
 
             # Start device
             extra_variables = [
@@ -342,7 +345,7 @@ class TestStateMachineTransitions:
             ]
             device.start(pristine=True, extra_variables=extra_variables)
 
-            server.accept_device()
+            server.accept_device(mac_address)
             device.status.is_authenticated(timeout=60)
             artifact_name = server.upload_artifact(
                 "test-mender-mcu-state-machine", device_types=("test-device",)
@@ -370,7 +373,11 @@ class TestStateMachineTransitions:
                     server.create_deployment(artifact_name, server.device_id, True)
                     active_deployment = True
 
-                if "No deployment available" in line and not is_noop and not active_deployment:
+                if (
+                    "No deployment available" in line
+                    and not is_noop
+                    and not active_deployment
+                ):
                     traversed_states.clear()
 
                 if (
@@ -421,9 +428,17 @@ class TestStateMachineTransitions:
             device.stop()
 
     @pytest.mark.parametrize("state_set", STATE_MACHINE_TEST_SET.keys())
-    def test_state_machine(self, server, get_build_dir, state_set):
-        self.do_test(server, get_build_dir, self.STATE_MACHINE_TEST_SET, state_set)
+    def test_state_machine(self, server, get_build_dir, mac_address, state_set):
+        self.do_test(
+            server, get_build_dir, mac_address, self.STATE_MACHINE_TEST_SET, state_set
+        )
 
     @pytest.mark.parametrize("state_set", SPONTANEOUS_REBOOT_TEST_SET.keys())
-    def test_spontaneous_reboot(self, server, get_build_dir, state_set):
-        self.do_test(server, get_build_dir, self.SPONTANEOUS_REBOOT_TEST_SET, state_set)
+    def test_spontaneous_reboot(self, server, get_build_dir, mac_address, state_set):
+        self.do_test(
+            server,
+            get_build_dir,
+            mac_address,
+            self.SPONTANEOUS_REBOOT_TEST_SET,
+            state_set,
+        )

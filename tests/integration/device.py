@@ -62,6 +62,7 @@ class NativeSim:
 
         self.server_host = ""
         self.server_tenant = ""
+        self.mac_address = ""
 
         self.status = DeviceStatus(self)
 
@@ -78,6 +79,9 @@ class NativeSim:
     def set_tenant(self, tenant):
         self.server_tenant = tenant
 
+    def set_mac(self, mac_address):
+        self.mac_address = mac_address
+
     def compile(self, pristine=False, extra_variables=None):
         if extra_variables is None:
             extra_variables = []
@@ -88,6 +92,11 @@ class NativeSim:
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
                 f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
             ] + extra_variables
+            if self.mac_address:
+                variables += [
+                    "-DCONFIG_ETH_NATIVE_TAP_RANDOM_MAC=n",
+                    f'-DCONFIG_ETH_NATIVE_TAP_MAC_ADDR="{self.mac_address}"',
+                ]
 
             command = (
                 [

@@ -15,6 +15,7 @@
 import os
 import re
 import sys
+import random
 import shutil
 import logging
 import tempfile
@@ -82,11 +83,22 @@ def get_build_dir():
     return tempfile.mkdtemp()
 
 
+@pytest.fixture(scope="function")
+def mac_address():
+    return "02:" + random.randbytes(5).hex(":")
+
+
 @pytest.fixture(autouse=True, scope="function")
 def teardown():
     yield
     if os.path.exists(helpers.get_header_file()):
         os.remove(helpers.get_header_file())
+
+
+@pytest.fixture(scope="function", autouse=True)
+def cleanup_device(server):
+    yield
+    server.decommission_device()
 
 
 @pytest.fixture(scope="function", autouse=True)

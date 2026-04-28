@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 import os
-import time
+import redo
 import logging
 
 from helpers import get_uncompressed_mender_artifact
@@ -52,17 +52,6 @@ class Server:
         assert r.status_code == 200
         return r.json()
 
-    def is_accepted(self, mac_address):
-        r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
-            "GET", deviceauth.URL_MGMT_DEVICES
-        )
-        assert r.status_code == 200
-        for device in (dev for dev in r.json() if dev["identity_data"] is not None):
-            if device["identity_data"]["mac"] == mac_address:
-                self.device_id = device["id"]
-                return True
-        return False
-
     def get_tenant_token(self):
         r = self.tenantadm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
             "GET", tenantadm.URL_MGMT_THIS_TENANT
@@ -70,29 +59,35 @@ class Server:
         assert r.status_code == 200
         return r.json()["tenant_token"]
 
-    def accept_device(self, mac_address="11:11:22:33:55:88"):
-        if self.is_accepted(mac_address):
-            return
-        pending_devices = self.get_pending_devices()
-        timeout = 10
-        while not pending_devices and timeout > 0:
-            pending_devices = self.get_pending_devices()
-            time.sleep(1)
-            timeout -= 1
-
-        for device in pending_devices:
-            device_id = device["id"]
+    @redo.retriable(sleeptime=5, attempts=6)
+    def accept_device(self, mac_address):
+        for device in self.get_pending_devices():
+            identity_data = device.get("identity_data") or {}
+            if identity_data.get("mac") != mac_address:
+                continue
+            self.device_id = device["id"]
             auth_set_id = device["auth_sets"][0]["id"]
-            identity_data = device["identity_data"]
-            if identity_data["mac"] == mac_address:
-                self.device_id = device_id
-                r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
-                    "PUT",
-                    deviceauth.URL_AUTHSET_STATUS,
-                    deviceauth.req_status("accepted"),
-                    path_params={"did": device_id, "aid": auth_set_id},
-                )
-                assert r.status_code == 204
+            r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
+                "PUT",
+                deviceauth.URL_AUTHSET_STATUS,
+                deviceauth.req_status("accepted"),
+                path_params={"did": self.device_id, "aid": auth_set_id},
+            )
+            assert r.status_code == 204
+            return
+        raise AssertionError(f"No pending device with mac {mac_address} found")
+
+    def decommission_device(self):
+        if not self.device_id:
+            return
+        r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
+            "DELETE",
+            deviceauth.URL_DEVICE,
+            path_params={"id": self.device_id},
+        )
+        assert r.status_code in (204, 404), f"{r.text} {r.status_code}"
+        self.device_id = ""
+        self.deployment_id = ""
 
     def abort_deployment(self):
         logger.info("Aborting deployment")
