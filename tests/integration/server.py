@@ -90,6 +90,8 @@ class Server:
         self.deployment_id = ""
 
     def abort_deployment(self):
+        if not self.deployment_id:
+            return
         logger.info("Aborting deployment")
         return self.api_dev_deploy.with_auth(self.auth_token).call(
             "PUT",

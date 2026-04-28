@@ -143,6 +143,8 @@ class NativeSim:
         logger.info("Started device")
 
     def stop(self, stop_after=0):
+        if self.proc is None:
+            return
         time.sleep(stop_after)
         self.proc.terminate()
         self.proc.wait()
