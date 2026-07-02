@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV MENDER_ARTIFACT_VERSION=4.4.0
 
@@ -25,6 +25,8 @@ RUN apt-get update && apt install -y --no-install-recommends \
   g++-multilib \
   libsdl2-dev \
   libmagic1 \
+  pkg-config \
+  libusb-1.0-0-dev \
   jq
 
 ARG ZEPHYR_SDK_VERSION=1.0.1
