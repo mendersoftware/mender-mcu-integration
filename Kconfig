@@ -34,4 +34,22 @@ endif # WIFI
 
 endmenu
 
+# Region-dependent mbedTLS static heap. The EU server chain anchors to a
+# cross-signed ISRG Root YR that the device must verify against the pinned
+# RSA-4096 ISRG Root X1; that RSA-4096 signature verify needs ~5 KB more heap
+# than the US chain (all RSA-2048). Measured worst-case footprint over a full
+# OTA: EU ~43.3 KB, US ~37 KB. Undersizing manifests as a TLS handshake
+# failure -0x2700 (X509 NOT_TRUSTED) from an INSUFFICIENT_MEMORY verify.
+# So give EU the bigger pool and leave everything else at the historical 40960.
+#
+# NOTE: this MUST come before `source "Kconfig.zephyr"`. configdefault inserts
+# its defaults ahead of the ones that already exist when it is parsed (textual
+# order); placed after the source, the symbol's built-in unconditional
+# `default 512` is seen first and wins. Parsed before the source, our defaults
+# take priority (the MENDER_SERVER_HOST_EU condition still resolves, since
+# configdefaults are applied only once the whole tree is known).
+configdefault MBEDTLS_HEAP_SIZE
+	default 49152 if MENDER_SERVER_HOST_EU
+	default 40960
+
 source "Kconfig.zephyr"
