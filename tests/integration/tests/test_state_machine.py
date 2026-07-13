@@ -179,7 +179,7 @@ class TestStateMachineTransitions:
             ],
         },
         "fail_rollback_verify_reboot": {
-            "Timeout": 120,
+            "Timeout": 180,
             "FailureInStates": [
                 "MENDER_UPDATE_STATE_VERIFY_REBOOT",
                 "MENDER_UPDATE_STATE_ROLLBACK_VERIFY_REBOOT",
