@@ -15,4 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-idf_component_register(SRCS "main.c")
+idf_component_register(SRCS "main.c" "netup.c")

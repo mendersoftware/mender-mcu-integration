@@ -23,6 +23,7 @@ Requires ESP-IDF 6.0 or later. To build for ESP32-S3:
 
 ```
 idf.py set-target esp32s3
+idf.py menuconfig   # set the Wi-Fi credentials under "Mender Reference App"
 idf.py build
 idf.py flash monitor
 ```

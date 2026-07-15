@@ -18,9 +18,12 @@
 #include "mender/client.h"
 #include "mender/utils.h"
 
+#include "netup.h"
+
 static const char *TAG = "mender_app";
 
-static mender_identity_t identity = { .name = "mac", .value = "00:11:22:33:44:55" };
+static char              mac_address[18] = { 0 };
+static mender_identity_t identity        = { .name = "mac", .value = mac_address };
 
 static mender_err_t
 get_identity_cb(const mender_identity_t **id) {
@@ -53,6 +56,12 @@ restart_cb(void) {
 void
 app_main(void) {
     ESP_LOGI(TAG, "Hello World! %s", CONFIG_IDF_TARGET);
+
+    if (0 != netup_wait_for_network()) {
+        ESP_LOGE(TAG, "Failed to bring up the network");
+        return;
+    }
+    netup_get_mac_address(mac_address);
 
     /* Server host, tenant token, device type etc. come from the component
      * configuration, overridable with idf.py -D */
