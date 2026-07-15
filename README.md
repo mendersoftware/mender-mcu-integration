@@ -9,8 +9,8 @@ across many devices.
 Mender provides modules to integrate with Real Time Operating Systems (RTOS). The code can be found
 in [`mender-mcu` repository](https://github.com/mendersoftware/mender-mcu/).
 
-This repository contains a reference project on how to integrate a user application with Mender OTA
-Zephyr Module, with configurations for some boards to choose from.
+This branch contains an ESP-IDF (FreeRTOS) demo app, pulling in the
+`mender-mcu` client through the IDF component manager.
 
 -------------------------------------------------------------------------------
 
@@ -19,80 +19,19 @@ Zephyr Module, with configurations for some boards to choose from.
 
 ## Get started
 
-To get started with Mender for Microcontrollers, visit [Mender documentation](https://docs.mender.io/get-started/microcontroller-preview).
+Requires ESP-IDF 6.0 or later. To build for ESP32-S3:
 
-### Native simulator
-
-See board support information from [Zephyr Project
-docs](https://docs.zephyrproject.org/latest/boards/native/native_sim/doc/index.html).
-
-*WARNING*: this board does not support MCUBoot, so the default "zephyr-image" Update Module is not
-compiled in, but rather "noop-update", which does nothing. This is meant to be used for testing purposes only.
-
-To set up networking, run `net-setup.sh` from `/path/to/workspace/tools/net-tools`, and see
-instructions in the
-[Zephyr documentation](https://docs.zephyrproject.org/latest/connectivity/networking/qemu_setup.html#setting-up-zephyr-and-nat-masquerading-on-host-to-access-internet)
-on how to configure the host machine to access internet.
-
-To build the reference project for native_sim, execute:
 ```
-west build --board native_sim mender-mcu-integration
+idf.py set-target esp32s3
+idf.py menuconfig   # set the Wi-Fi credentials under "Mender Reference App"
+idf.py build
+idf.py flash monitor
 ```
 
-Then you can run the binary with:
-```
-./build/zephyr/zephyr.exe
-```
+The app initializes the client. Most of the platform
+backends are not implemented yet, so initialization is expected to fail with
+NOT_IMPLEMENTED until they land.
 
-or
-```
-west build -t run
-```
-
-### Using on-premise demo Mender Server
-
-To run the Native Simulator with on-premise Mender Server:
-
-1. Follow instructions from [mender-server](https://github.com/mendersoftware/mender-server) to start the server
-
-2. Copy and convert the demo certificate for docker.mender.io
-    ```
-    wget https://raw.githubusercontent.com/mendersoftware/mender-server/main/compose/certs/mender.crt
-    openssl x509 -in mender.crt -outform der -out mender.der
-    ```
-
-3. Add the following Kconfig parameters to your build:
-    ```
-    CONFIG_MENDER_SERVER_HOST_ON_PREM=y
-    CONFIG_MENDER_SERVER_HOST="https://docker.mender.io"
-    CONFIG_MENDER_APP_SERVER_HOST_ON_PREM_CERT="mender.der"
-    CONFIG_DNS_SERVER_IP_ADDRESSES=y
-    CONFIG_DNS_SERVER1="192.0.2.2:15353"
-    ```
-
-4. Start networking with  `net-setup.sh`
-
-5. Start the DNS and DHCP servers with `dnsmasq`
-    ```
-    cat << EOF > dnsmasq.conf
-    # Config for Mender Demo Server DNS and DHCPv4
-    interface=zeth
-
-    port=15353
-    bind-interfaces
-    no-resolv
-
-    address=/docker.mender.io/192.0.2.2
-    dhcp-range=192.0.2.16,192.0.2.32,1h
-    EOF
-    sudo dnsmasq -C dnsmasq.conf -d
-    ```
-
-6. Launch the Mender MCU client \o/
-
-    ```
-    west build -t run
-    ```
 ## Contributing
 
 We welcome and ask for your contribution. If you would like to contribute to

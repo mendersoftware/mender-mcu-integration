@@ -1,4 +1,4 @@
-// Copyright 2024 Northern.tech AS
+// Copyright 2026 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -12,19 +12,18 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-#ifndef __NOOP_UPDATE_MODULE_H__
-#define __NOOP_UPDATE_MODULE_H__
+#ifndef __NETUP_H__
+#define __NETUP_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+/**
+ * @brief Connect to the wireless network and wait for an IP address
+ * @return 0 on success, -1 on error
+ */
+int netup_wait_for_network(void);
 
-#include <mender/utils.h>
+/**
+ * @brief Get MAC address
+ */
+void netup_get_mac_address(char *address);
 
-mender_err_t test_update_module_register(void);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* __NOOP_UPDATE_MODULE_H__ */
+#endif /* __NETUP_H__ */

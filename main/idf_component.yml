@@ -1,0 +1,4 @@
+dependencies:
+  mender-mcu:
+    git: https://github.com/mendersoftware/mender-mcu.git
+    version: main

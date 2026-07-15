@@ -1,0 +1,11 @@
+menu "Mender Reference App"
+
+	config MENDER_APP_WIFI_SSID
+		string "WIFI SSID - Network name"
+		default "my_network"
+
+	config MENDER_APP_WIFI_PSK
+		string "WIFI PSK - Network password key"
+		default "secret_passwd"
+
+endmenu

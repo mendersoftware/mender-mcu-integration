@@ -1,5 +1,5 @@
 # @file      CMakeLists.txt
-# @brief     mender-mcu FreeRTOS/ESP-IDF example project
+# @brief     mender-mcu FreeRTOS/ESP-IDF example app
 #
 # Copyright Northern.tech AS
 #
@@ -15,9 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Minimum requirement for ESP-IDF >= 6.0, see
-# https://docs.espressif.com/projects/esp-idf/en/latest/esp32/migration-guides/release-6.x/6.0/tools.html
-cmake_minimum_required(VERSION 3.22.1)
-
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(mender-mcu-freertos-example)
+idf_component_register(SRCS "main.c" "netup.c")
