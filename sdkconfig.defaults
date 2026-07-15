@@ -1,0 +1,7 @@
+# Target chip (without this a fresh clone builds for the default esp32)
+CONFIG_IDF_TARGET="esp32s3"
+
+# 8 MB flash on the devkit
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+
+
