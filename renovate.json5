@@ -20,19 +20,5 @@
     },
   ],
 
-  "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/Dockerfile.ci/"],
-      "matchStrings": [
-        "MENDER_ARTIFACT_VERSION=\\s*[\"']?(?<currentValue>[\\d\\.]+)[\"']?"
-      ],
-      "depNameTemplate": "mendersoftware/mender-artifact",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "semver"
-    },
-  ],
-
   "prHourlyLimit": 0
 }
