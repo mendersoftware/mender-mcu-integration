@@ -20,7 +20,7 @@ manifest:
           - hal_espressif
     - name: mender-mcu
       remote: mender
-      revision: main
+      revision: v1.0.0
       path: modules/mender-mcu
       import: true
 
