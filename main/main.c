@@ -17,6 +17,7 @@
 
 #include "mender/client.h"
 #include "mender/utils.h"
+#include "mender/esp-ota-update-module.h"
 
 #include "netup.h"
 
@@ -80,6 +81,11 @@ app_main(void) {
     mender_err_t ret = mender_client_init(&config, &callbacks);
     ESP_LOGI(TAG, "mender_client_init returned %d", (int)ret);
     if (MENDER_OK != ret) {
+        return;
+    }
+
+    if (MENDER_OK != mender_esp_ota_register_update_module()) {
+        /* error already logged */
         return;
     }
 
