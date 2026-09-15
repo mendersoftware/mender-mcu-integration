@@ -17,6 +17,7 @@
 
 #include "mender/client.h"
 #include "mender/utils.h"
+#include "mender/inventory.h"
 #include "mender/esp-ota-update-module.h"
 
 #include "netup.h"
@@ -54,6 +55,14 @@ restart_cb(void) {
     return MENDER_OK;
 }
 
+static mender_err_t
+persistent_inventory_cb(mender_keystore_t **keystore, uint8_t *keystore_len) {
+    static mender_keystore_t inventory[] = { { .name = "App", .value = "mender-mcu-integration" } };
+    *keystore                            = inventory;
+    *keystore_len                        = 1;
+    return MENDER_OK;
+}
+
 void
 app_main(void) {
     ESP_LOGI(TAG, "Hello World! %s", CONFIG_IDF_TARGET);
@@ -86,6 +95,11 @@ app_main(void) {
 
     if (MENDER_OK != mender_esp_ota_register_update_module()) {
         /* error already logged */
+        return;
+    }
+
+    if (MENDER_OK != mender_inventory_add_callback(persistent_inventory_cb, true)) {
+        ESP_LOGE(TAG, "Failed to add inventory callback");
         return;
     }
 
