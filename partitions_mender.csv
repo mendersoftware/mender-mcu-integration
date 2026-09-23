@@ -1,6 +1,7 @@
 # Name, Type, SubType, Offset, Size, Flags
-nvs     ,data ,nvs, 0x9000,24K,
-otadata ,data ,ota,       ,0x2000,
-mender  ,data ,nvs,       ,32K,
-ota_0   ,app  ,ota_0,     ,1536K,
-ota_1   ,app  ,ota_1,     ,1536K,
+nvs         ,data ,nvs, 0x9000 ,24K,
+otadata     ,data ,ota,        ,0x2000,
+mender      ,data ,nvs,        ,32K,
+mender_logs ,data ,undefined,  ,8K,
+ota_0       ,app  ,ota_0,      ,1536K,
+ota_1       ,app  ,ota_1,      ,1536K,
