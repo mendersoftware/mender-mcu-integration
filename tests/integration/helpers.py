@@ -17,6 +17,7 @@ import random
 import string
 import tempfile
 import time
+import pytest
 import subprocess
 
 from os import path
@@ -63,6 +64,36 @@ def stdout(device):
             return device.output.read()
         else:
             time.sleep(0.1)
+
+
+def read_log(device, until, timeout=60):
+    """Read device output until a line containing `until` shows up and return all
+    lines read so far. Fails the test on timeout or if the device exits first."""
+    lines = []
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        line = stdout(device)
+        lines.append(line)
+        if until in line:
+            return lines
+        if not device.is_running():
+            break
+    logger.debug("=== Device logs follow ===\n" + "".join(lines))
+    pytest.fail(f"'{until}' not found in device output")
+
+
+def log_contains(lines, text):
+    return any(text in line for line in lines)
+
+
+def boot(device, until, timeout=60):
+    """Start the (already compiled) device, read its output until a line
+    containing `until` shows up, stop it and return the lines read"""
+    device.start(compile=False)
+    try:
+        return read_log(device, until, timeout)
+    finally:
+        device.stop()
 
 
 # get_mender_artifact from testutils/common.py didn't support uncompressed artifacts
