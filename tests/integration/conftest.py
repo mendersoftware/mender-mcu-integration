@@ -34,6 +34,7 @@ sys.path += [
 ]
 
 from server import Server
+from device import NativeSim
 
 logging.getLogger("requests").setLevel(logging.CRITICAL)
 
@@ -86,6 +87,18 @@ def get_build_dir():
 @pytest.fixture(scope="function")
 def mac_address():
     return "02:" + random.randbytes(5).hex(":")
+
+
+@pytest.fixture(scope="function")
+def device(server, get_build_dir, mac_address):
+    """A native_sim device connected to the test server, stopped after the test.
+    It is not compiled yet, so that callbacks and defines can still be set."""
+    device = NativeSim(get_build_dir)
+    device.set_host(f"https://{server.host}")
+    device.set_tenant(server.get_tenant_token())
+    device.set_mac(mac_address)
+    yield device
+    device.stop()
 
 
 @pytest.fixture(autouse=True, scope="function")
