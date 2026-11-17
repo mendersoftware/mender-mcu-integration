@@ -38,6 +38,7 @@ class Server:
         self.host = host
         self.deployment_id = ""
         self.device_id = ""
+        self.auth_set_id = ""
 
         self.api_dev_deploy = ApiClient(deployments.URL_MGMT, self.host)
         self.devauthm = ApiClient(deviceauth.URL_MGMT, host=self.host)
@@ -66,16 +67,25 @@ class Server:
             if identity_data.get("mac") != mac_address:
                 continue
             self.device_id = device["id"]
-            auth_set_id = device["auth_sets"][0]["id"]
-            r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
-                "PUT",
-                deviceauth.URL_AUTHSET_STATUS,
-                deviceauth.req_status("accepted"),
-                path_params={"did": self.device_id, "aid": auth_set_id},
-            )
-            assert r.status_code == 204
+            self.auth_set_id = device["auth_sets"][0]["id"]
+            self.set_auth_set_status("accepted")
             return
         raise AssertionError(f"No pending device with mac {mac_address} found")
+
+    def reject_device(self):
+        """Reject the auth set of the accepted device, revoking its tokens so
+        that any further authentication attempt fails."""
+        logger.info("Rejecting device")
+        self.set_auth_set_status("rejected")
+
+    def set_auth_set_status(self, status):
+        r = self.devauthm.with_auth(os.getenv("TEST_AUTH_TOKEN")).call(
+            "PUT",
+            deviceauth.URL_AUTHSET_STATUS,
+            deviceauth.req_status(status),
+            path_params={"did": self.device_id, "aid": self.auth_set_id},
+        )
+        assert r.status_code == 204, f"{r.text} {r.status_code}"
 
     def decommission_device(self):
         if not self.device_id:
@@ -87,6 +97,7 @@ class Server:
         )
         assert r.status_code in (204, 404), f"{r.text} {r.status_code}"
         self.device_id = ""
+        self.auth_set_id = ""
         self.deployment_id = ""
 
     def abort_deployment(self):
