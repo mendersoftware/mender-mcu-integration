@@ -34,7 +34,7 @@ sys.path += [
 ]
 
 from server import Server
-from device import NativeSim
+from device import NativeSim, sanitizer_reports
 
 logging.getLogger("requests").setLevel(logging.CRITICAL)
 
@@ -64,6 +64,16 @@ def pytest_addoption(parser):
         default="docker.mender.io",
         help="Server URL for tests",
     )
+    parser.addoption(
+        "--sanitize",
+        action="store_true",
+        default=False,
+        help="Build the device with AddressSanitizer and fail tests on sanitizer reports",
+    )
+
+
+def pytest_configure(config):
+    NativeSim.sanitize = config.getoption("--sanitize")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -81,7 +91,23 @@ def server(setup_user, request):
 
 @pytest.fixture(scope="function", autouse=True)
 def get_build_dir():
-    return tempfile.mkdtemp()
+    build_dir = tempfile.mkdtemp()
+    yield build_dir
+    # Fixtures using the build dir (coverage, sanitizer reports) are torn down
+    # before this one, so it is safe to remove it here
+    shutil.rmtree(build_dir, ignore_errors=True)
+
+
+@pytest.fixture(scope="function", autouse=True)
+def check_sanitizers(get_build_dir):
+    yield
+    if not NativeSim.sanitize:
+        return
+    reports = sanitizer_reports(get_build_dir)
+    if reports:
+        pytest.fail(
+            "Sanitizer reported errors:\n" + "\n".join(reports), pytrace=False
+        )
 
 
 @pytest.fixture(scope="function")
@@ -136,7 +162,6 @@ def get_coverage(request, get_build_dir):
         subprocess.check_call(command)
     except subprocess.CalledProcessError as err:
         pytest.fail(err.stderr)
-    shutil.rmtree(get_build_dir)
 
 
 @pytest.fixture(scope="session", autouse=True)

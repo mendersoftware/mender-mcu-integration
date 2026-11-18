@@ -29,6 +29,9 @@ LOG_MODULE_REGISTER(mender_app, LOG_LEVEL_DBG);
 #ifdef BUILD_INTEGRATION_TESTS
 #include "modules/test-update-module.h"
 #include "test_definitions.h"
+#ifdef CONFIG_ASAN
+#include "host_alloc.h"
+#endif /* CONFIG_ASAN */
 #endif /* BUILD_INTEGRATION_TESTS */
 
 #ifdef CONFIG_MENDER_ZEPHYR_IMAGE_UPDATE_MODULE
@@ -109,6 +112,13 @@ main(void) {
                                                           .restart                = mender_restart_cb,
                                                           .get_identity           = mender_get_identity_cb,
                                                           .get_user_provided_keys = NULL };
+
+#if defined(BUILD_INTEGRATION_TESTS) && defined(CONFIG_ASAN)
+    mender_client_config.allocation_funcs.malloc_func  = host_alloc_malloc;
+    mender_client_config.allocation_funcs.realloc_func = host_alloc_realloc;
+    mender_client_config.allocation_funcs.free_func    = host_alloc_free;
+    LOG_INF("Using host allocator for Mender (AddressSanitizer build)");
+#endif /* BUILD_INTEGRATION_TESTS && CONFIG_ASAN */
 
     LOG_INF("Initializing Mender Client with:");
     LOG_INF("   Device type:   '%s'", mender_client_config.device_type);

@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 import os
+import glob
 import time
 import pytest
 import shutil
@@ -30,6 +31,20 @@ from helpers import THIS_DIR
 
 # This has to point the west workspace containing mender-mcu-integration
 WORKSPACE_DIRECTORY = os.path.join(THIS_DIR, "../../")
+
+
+def sanitizer_log_prefix(build_dir):
+    return os.path.join(build_dir, "asan")
+
+
+def sanitizer_reports(build_dir):
+    """Return the contents of all sanitizer reports written by devices built
+    in build_dir, an empty list if there are none"""
+    reports = []
+    for report in sorted(glob.glob(sanitizer_log_prefix(build_dir) + ".*")):
+        with open(report, "r", errors="replace") as f:
+            reports.append(f.read())
+    return reports
 
 
 class DeviceStatus:
@@ -57,6 +72,10 @@ class DeviceStatus:
 
 
 class NativeSim:
+    # Build with AddressSanitizer (incl. LeakSanitizer). Set globally from the
+    # --sanitize pytest option, see conftest.py
+    sanitize = False
+
     def __init__(self, build_dir, log_stdout=True):
         self.tenant_token = "..."
         self.proc = None
@@ -103,6 +122,8 @@ class NativeSim:
             f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"', extra_host_arg,
             f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
         ] + extra_variables
+        if self.sanitize:
+            variables += ["-DCONFIG_ASAN=y"]
         if self.mac_address:
             variables += [
                 "-DCONFIG_ETH_NATIVE_TAP_RANDOM_MAC=n",
@@ -142,29 +163,47 @@ class NativeSim:
         if compile:
             self.compile(pristine=pristine, extra_variables=extra_variables)
 
+        command = [
+            f"{self.build_dir}/zephyr/zephyr.exe",
+            f"--flash={self.build_dir}/flash.bin",
+        ]
         if self._log_stdout:
             self._output_file = f"{self.build_dir}/{os.getpid()}_{time.time_ns()}.out"
             proc_output = open(self._output_file, "w")
             self.output = open(self._output_file, "r")
             self.proc = subprocess.Popen(
-                [
-                    f"{self.build_dir}/zephyr/zephyr.exe",
-                    f"--flash={self.build_dir}/flash.bin",
-                ],
+                command,
                 stdout=proc_output,
                 stderr=subprocess.STDOUT,
                 text=True,
+                env=self._env(),
             )
         else:
             self.proc = subprocess.Popen(
-                [
-                    f"{self.build_dir}/zephyr/zephyr.exe",
-                    f"--flash={self.build_dir}/flash.bin",
-                ],
+                command,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                env=self._env(),
             )
         logger.info("Started device")
+
+    def _env(self):
+        if not self.sanitize:
+            return None
+        env = dict(os.environ)
+        # Reports go to <build_dir>/asan.<pid> (one file per process, so also
+        # across reboots) and are collected by the check_sanitizers fixture.
+        # Any ASAN_OPTIONS already in the environment are appended so they
+        # take precedence, which is handy when debugging locally.
+        options = [
+            f"log_path={sanitizer_log_prefix(self.build_dir)}",
+            "halt_on_error=1",
+            "detect_leaks=1",
+        ]
+        if env.get("ASAN_OPTIONS"):
+            options.append(env["ASAN_OPTIONS"])
+        env["ASAN_OPTIONS"] = ":".join(options)
+        return env
 
     def is_running(self):
         if not self.proc:

@@ -175,7 +175,7 @@ test:integration:
     - git checkout FETCH_HEAD && cd -
     - cd ${CI_PROJECT_DIR}/tests/integration
     - pip install --ignore-installed --break-system-packages -r mender_server/backend/tests/requirements-integration.txt
-    - pytest --verbose --junitxml=results.xml --host hosted.mender.io
+    - pytest --verbose --junitxml=results.xml --host hosted.mender.io ${PYTEST_EXTRA_ARGS}
   after_script:
     - export MANTRA_PROJECT_NAME="client_general"
     - !reference [.mantra-push-results]
@@ -184,6 +184,19 @@ test:integration:
   artifacts:
     paths:
       - tests/integration/coverage.lcov
+
+# Same tests, with the device built with AddressSanitizer (incl. LeakSanitizer).
+# Any sanitizer report fails the test it was produced in.
+test:integration:asan:
+  extends: test:integration
+  variables:
+    PYTEST_EXTRA_ARGS: "--sanitize"
+  # Don't push duplicate results to Mantra
+  after_script: []
+  artifacts:
+    when: always
+    reports:
+      junit: tests/integration/results.xml
 
 test:smoke:eu-hosted:
   extends: test:integration
