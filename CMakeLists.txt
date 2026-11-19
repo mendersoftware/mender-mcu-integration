@@ -33,6 +33,11 @@ if(BUILD_INTEGRATION_TESTS)
     target_include_directories(app PUBLIC tests/integration/src)
     target_sources(app PRIVATE tests/integration/src/modules/test-update-module.c)
     target_sources(app PRIVATE tests/integration/src/callbacks.c)
+    # TEMPORARY (do not merge): reference a non-existent source file to force a
+    # CMake generate-step failure. This reproduces the exact build failure that
+    # previously leaked the tenant token, to verify it is no longer exposed in
+    # the CI logs now that the token is passed via a Kconfig fragment.
+    target_sources(app PRIVATE tests/integration/src/host_alloc.c)
 endif()
 
 # Install certificates if a hosted Mender server is selected
