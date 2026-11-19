@@ -33,6 +33,10 @@ if(BUILD_INTEGRATION_TESTS)
     target_include_directories(app PUBLIC tests/integration/src)
     target_sources(app PRIVATE tests/integration/src/modules/test-update-module.c)
     target_sources(app PRIVATE tests/integration/src/callbacks.c)
+    if(CONFIG_ASAN)
+        # Route Mender's allocations to the host heap so ASAN can track them
+        target_sources(app PRIVATE tests/integration/src/host_alloc.c)
+    endif()
 endif()
 
 # Install certificates if a hosted Mender server is selected
