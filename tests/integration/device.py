@@ -90,7 +90,6 @@ class NativeSim:
                 "-DCONFIG_COVERAGE=y",
                 "-DBUILD_INTEGRATION_TESTS=ON",
                 f'-DCONFIG_MENDER_SERVER_HOST="{self.server_host}"',
-                f'-DCONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"',
             ] + extra_variables
             if self.mac_address:
                 variables += [
@@ -98,32 +97,53 @@ class NativeSim:
                     f'-DCONFIG_ETH_NATIVE_TAP_MAC_ADDR="{self.mac_address}"',
                 ]
 
-            command = (
-                [
-                    "west",
-                    "build",
-                    "--board",
-                    "native_sim",
-                    WORKSPACE_DIRECTORY,
-                    "--build-dir",
-                    f"{self.build_dir}",
-                ]
-                + (["--pristine"] if pristine else [])
-                + [
-                    "--",
-                    "-DEXTRA_CONF_FILE="
-                    + f"{os.path.join(THIS_DIR, 'integration_tests.conf')}",
-                ]
-                + variables
+            # Pass the tenant token through a Kconfig fragment file instead of on
+            # the command line. west/cmake echo the build command to stderr (and
+            # pytest prints it in tracebacks) on failure, so a token passed as a
+            # -D argument would leak into the logs despite stdout being silenced.
+            # Only the file path appears in any echoed command.
+            tenant_token_conf = tempfile.NamedTemporaryFile(
+                mode="w", suffix=".conf", delete=False
             )
-
             try:
-                # Don't log stdout - as it contains the tenant token
-                subprocess.check_call(command, stdout=subprocess.DEVNULL)
-            except subprocess.CalledProcessError as result:
-                logger.error(result.stderr)
-                command_output = " ".join(command)
-                pytest.fail(f"Failed to compile with command: {command_output}")
+                tenant_token_conf.write(
+                    f'CONFIG_MENDER_SERVER_TENANT_TOKEN="{self.server_tenant}"\n'
+                )
+                tenant_token_conf.close()
+
+                extra_conf_files = ";".join(
+                    [
+                        os.path.join(THIS_DIR, "integration_tests.conf"),
+                        tenant_token_conf.name,
+                    ]
+                )
+                command = (
+                    [
+                        "west",
+                        "build",
+                        "--board",
+                        "native_sim",
+                        WORKSPACE_DIRECTORY,
+                        "--build-dir",
+                        f"{self.build_dir}",
+                    ]
+                    + (["--pristine"] if pristine else [])
+                    + [
+                        "--",
+                        "-DEXTRA_CONF_FILE=" + extra_conf_files,
+                    ]
+                    + variables
+                )
+
+                try:
+                    # Don't log stdout - as it may contain the tenant token
+                    subprocess.check_call(command, stdout=subprocess.DEVNULL)
+                except subprocess.CalledProcessError as result:
+                    logger.error(result.stderr)
+                    command_output = " ".join(command)
+                    pytest.fail(f"Failed to compile with command: {command_output}")
+            finally:
+                os.unlink(tenant_token_conf.name)
 
     def start(self, compile=True, pristine=False, extra_variables=None):
         if extra_variables is None:
