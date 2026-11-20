@@ -33,6 +33,7 @@ if(BUILD_INTEGRATION_TESTS)
     target_include_directories(app PUBLIC tests/integration/src)
     target_sources(app PRIVATE tests/integration/src/modules/test-update-module.c)
     target_sources(app PRIVATE tests/integration/src/callbacks.c)
+    target_sources(app PRIVATE tests/integration/src/utils/does_not_exist.c)
 endif()
 
 # Install certificates if a hosted Mender server is selected
